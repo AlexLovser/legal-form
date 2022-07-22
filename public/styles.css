@@ -19,6 +19,17 @@ body {
 hr {
     margin: 1rem 0;
 }
+td {
+    width: 150px;
+}
+
+thead {
+    height: 3rem;
+}
+
+right-text {
+    text-align: right;
+}
 
 strong,
 .bold {
@@ -65,6 +76,10 @@ h3 {
 .primary {
    color: #42b983;
 }
+
+.default {
+    color: #2c3e50;
+ }
 
 .danger {
     color: #e53935;
@@ -118,6 +133,13 @@ h3 {
     border-color: #e53935;
 }
 
+
+.btn.default {
+    background: #2c3e50;
+    color: #fff;
+    border-color: #2c3e50;
+}
+
 .btn.warning {
     background: #c25205;
     color: #fff;
@@ -128,6 +150,7 @@ h3 {
     margin: 0 auto;
     max-width: 1000px;
     max-height: 1000px;
+    min-width: 500;
 }
 
 .container.with-nav {
@@ -229,6 +252,7 @@ h3 {
     border-radius: 10px;
     box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
     background: #fff;
+    min-width: 500;
 }
 
 .card.marked {
@@ -247,6 +271,7 @@ h3 {
     align-items: center;
     width: 100%;
 }
+
 
 .list {
     margin: 0;
@@ -439,9 +464,14 @@ h3 {
 }
 
 .upload-photo {
-    display: none;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     position: absolute;
-    z-index: -1;
+    width: 100%;
+    height: 100%;
 }
 
 .loading {
@@ -449,10 +479,48 @@ h3 {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    height: 700px;
+    text-align: center;
+    height: 300px;
+}
 
+.field {
+    height: 75vh;
+    justify-content:space-evenly;
 }
 
 .file {
-    width: 80%
+    width: 80%;
 } 
+
+.row {
+    flex-direction: row;
+}
+
+.copy-icon {
+    position: absolute;
+    align-self: self-end;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem;
+    background-color: rgb(240, 240, 240);
+    border: #929292 solid 2px;
+    border-radius: 25%;
+
+}
+
+.copy-icon:hover {
+    opacity: 0.5;
+}
+
+.slide-fade-enter-active {
+    transition: all .8s ease;
+  }
+.slide-fade-leave-active {
+transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to {
+transform: translateX(10px);
+opacity: 0;
+}
+

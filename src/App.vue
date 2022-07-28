@@ -1,200 +1,156 @@
 <template>
-  <div class="container center pt-5" v-cloak>
-    <div class="card field center">
-      <div class="center" @dragover="dragover" @dragleave="dragleave" @drop="drop" v-if="responseRequested">
-        <div>
-          <input 
-            type="file" 
-            id="assetsFieldHandle" 
-            class="upload-photo center"
-            @change="onChange" 
-            ref="file" 
-            accept=".xls" 
-          >
-          <label for="assetsFieldHandle" class="input-label">
-            Перетащите сюда ваши файлы <strong :class="err ? 'danger' : 'none'">.xls</strong> или <span class="underline primary">кликните тут</span> чтобы загрузить их
-          </label>
-        </div>
-        <div class="card mt-1 list-item file alert" v-if="this.file !== null" >
-          {{ file.name }} <button  class="btn danger" type="button" @click="remove">Удалить</button>
-        </div>
-        <button class="btn primary mt-1" @click="startRequest" :disabled="isDisabled">Начать</button>
-      </div>
-      <div v-if="showAnimation" class="center">
-        <loadingAnimationVue :step='step'/>
-      </div>
-      <span v-else-if="!responseRequested" class="card center file alert">
-        <div class="copy-icon" @click="copy">
-         <unicon name="copy" fill="#929292" height="25" width="25" ></unicon>
-        </div>
-       
-        <table v-cloak>
-            <thead>
-              <th>Полученные данные</th>
-            </thead>
-            <tr v-for="k of Object.entries(response)" :key="k[0]">
-              <span v-if="!k[1].startsWith('http')">
-                <td><strong>{{k[0]}}</strong></td>
-                <td>{{k[1]}}</td>
-              </span>
-              <span v-else>
-                <td>
-                <a :href="k[1]" target="_blank">{{k[0]}}</a>
-                </td>
-                <td></td>
-              </span>
-            </tr>
-          </table>
-      </span>
-      <transition name="slide-fade">
-        <div v-if="show" class="modal alert primary">
-        Скопировано
-        </div>
-      </transition>
-     
-    </div>
-  </div>
-  
+	<div class="container center pt-5" v-cloak>
+		<div class="card field center">
+			<fileInputVue v-if="responseRequested && !serverError" :startRequest="startRequest"
+				:showAnimation="showAnimation" :response="response" />
+			<div v-else-if="serverError">
+				<ul class="list">
+					<li class="list-item center" v-for="(i, index) of serverError" :key="index">
+						{{ i.message }}
+					</li>
+				</ul>
+			</div>
+			<div v-else-if="showAnimation" class="center">
+				<loadingAnimationVue :step='step' />
+			</div>
+			<resultTableVue v-else-if="!responseRequested" :response="response" />
+			<transition name="slide-fade">
+				<div v-if="show" class="modal alert primary">
+					Скопировано
+				</div>
+			</transition>
+
+		</div>
+	</div>
+
 </template>
 
-<script> 
+<script>
 import loadingAnimationVue from '@/components/loadingAnimation.vue';
+import resultTableVue from '@/components/resultTable.vue';
+import fileInputVue from '@/components/fileInput.vue';
 
+const request = async (url, params = {}, providedOptions = {}, method = 'GET') => {
+	const options = {
+		method,
+		contentType: 'application/json',
+		body: JSON.stringify(params),
+		...providedOptions
+	};
+
+	if ('GET' === method) {
+		url += '?' + (new URLSearchParams(params)).toString();
+	} else {
+		options.body = JSON.stringify(params);
+	}
+
+	const response = await fetch(url, options);
+	return await response.json();
+};
+// const get = ( url, params, options={} ) => request( url, params, options, 'GET' );
+const post = (url, params, options = {}) => request(url, params, options, 'POST');
 
 export default {
-  name: 'App',
-  components: {
-    loadingAnimationVue,
-  },
-  props: {
-  },
-  data: () => ({
-    file: null,
-    err: false,
-    step: 0,
-    showAnimation: false,
-    show: false,
-    response: {}
-  }),
-  methods: {
-    onChange() {
-      let newFile = this.$refs.file.files;
-      if (!newFile) {
-        return
-      }
+	name: 'App',
+	components: {
+		loadingAnimationVue,
+		resultTableVue,
+		fileInputVue
+	},
+	data: () => ({
+		file: null,
+		err: false,
+		step: 0,
+		showAnimation: false,
+		show: false,
+		response: {},
+		serverError: null
+	}),
+	emits: {
+		onFileInput: ({ newFile }) => this.file = newFile
+	},
+	methods: {
+		startRequest(event) {
+			event.preventDefault()
+			this.showAnimation = true
 
-      newFile = newFile[0]
+			new Promise(
+				resolve => { // Распаковка
+					const params = this.extractInformation(this.file)
+					console.log(params)
+					this.step++
+					resolve(params)
+				}
 
-      if (newFile.name.endsWith('.xls')) {
-        this.file = newFile;
-        this.err = false
-      } else {
-        this.err = true
-      }
-    },
-    remove() {
-      this.file = null
-    },
-    dragover(event) {
-      event.preventDefault();
-      event.currentTarget.style.opacity = 0.5
-    },
-    dragleave(event) {
-      event.preventDefault()
-      event.currentTarget.style.opacity = 1
-    },
-    drop(event) {
-      event.preventDefault();
-      this.$refs.file.files = event.dataTransfer.files;
-      this.onChange();
-      this.dragleave(event)
-    },
-    handleFileName(name) {
-      if (name.length >= 14) {
-        return name.slice(11) + '...'
-      } else {
-        return name
-      }
-    },
-    startRequest(event) {
-      event.preventDefault()
-      this.showAnimation = true
+			)	.then(params => new Promise(
+					(resolve, reject) => { // Отправка
+						this.step++
+						post('http://37.46.132.129:7006/api/v1/', params)
+							.then(response => {
+								console.log(response)
+								if (response.status === 'error') {
+									reject(response)
+								} else {
+									resolve({
+										total_debt_amount: response.total_debt_amount,
+										total_penalty: response.total_penalty
+									})
+								}
+							});
 
-      new Promise(
-        resolve => setTimeout(
-          () => {
-              this.step++
-              resolve()
-          }, 1000)
-      ).then(() => new Promise(
-        resolve => setTimeout(
-          () => {
-              this.step++
-              resolve()
-          }, 2000)
-      )).then(() => new Promise(
-        resolve => setTimeout(
-          () => {
-              this.step++
-              resolve()
-          }, 2500)
-      )).then(() => new Promise(
-        resolve => setTimeout(
-          () => {
-              this.step++
-              resolve()
-          }, 500)
-      )).then(() => new Promise(
-        resolve => setTimeout(
-          () => {
-              this.step++
-              resolve()
-          }, 1000)
-      )).then(() => {
-          this.showAnimation = false
-          this.response = {
-            'Имя': 'Александр',
-            'Фамилия': 'Табольский',
-            'Возраст': '17',
-            'Ссылка на вк': 'https://vk.com/im?v=',
-            'Возраст2': '17',
-            'Ссылка на вк222': 'https://vk.com/im?v=',
-            'Возраст3': '17',
-            'Ссылка на в33к': 'https://vk.com/im?v='
-          }
-      })
-    },
-    copy(event) {
-      event.preventDefault()
-      let txt = '{\n'
-      for (let item of Object.entries(this.response)) {
-        let [k, v] = item;
-        txt += `\t"${k}": "${v}",\n`
-      }
-      txt += '}'
-  
-      navigator.clipboard.writeText(txt)
-      this.show = true
+					}
+			))	.then(response => new Promise(
+					resolve => setTimeout(
+						() => {
+							this.step++
+							console.log('1')
+							resolve(response)
+						}, 2500)
+			))	.then(response => new Promise(
+					resolve => setTimeout(
+						() => {
+							this.step++
+							console.log('2')
+							resolve(response)
+						}, 500)
+			))	.then(response => new Promise(
+					resolve => setTimeout(
+						() => {
+							this.step++
+							console.log('3')
+							resolve(response)
+						}, 1000)
+			))	.then(response => {
+					this.showAnimation = false
+					this.response = response
+			})
+				.catch(reason => {
+					this.step = 5
+					this.showAnimation = false
+					this.serverError = reason.messages
+				})
+		},
+		extractInformation: async (file) => await post(
+			'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
+			{ file },
+			{ contentType: 'multipart/form-data' }
+		)
+	},
 
-      setTimeout(() => {this.show = false}, 3000)
-    }
-  },
-  computed: {
-    isDisabled() {
-      return this.file == null || this.showAnimation || !this.response
-    },
-    responseRequested() {
-      return !Object.keys(this.response).length && !this.showAnimation
-    }
-   
-  },
-  watch: {
-    showAnimation() {
-      return this.file !== null & this.response === null
-    },
+	computed: {
 
-    
-  },
+		responseRequested() {
+			return !Object.keys(this.response).length && !this.showAnimation
+		}
+
+	},
+	watch: {
+		showAnimation() {
+			return this.file !== null & this.response === null
+		},
+
+
+	},
 
 }
 </script>

@@ -31,23 +31,24 @@ export default {
     }),
     props: [
         'startRequest',
-        'showAnimation',
-        'response'
-
+        'setNewFile'
     ],
+    inject: [
+        'response',
+        'showAnimation'
+    ],
+
     methods: {
         onChange() {
-            let newFile = this.$refs.file.files;
+            let newFile = this.$refs.file.files[0];
             if (!newFile) {
                 return
             }
 
-            newFile = newFile[0]
-
             if (newFile.name.endsWith('.xls')) {
                 this.file = newFile;
                 this.err = false
-                this.$emit('onFileInput', {newFile})
+                this.setNewFile(newFile)
             } else {
                 this.err = true
             }

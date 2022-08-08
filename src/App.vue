@@ -1,19 +1,15 @@
 <template>
 	<div class="container center pt-5" v-cloak>
 		<div class="card field center">
-			<fileInputVue v-if="responseRequested && !serverError" :startRequest="startRequest"
-				:showAnimation="showAnimation" :response="response" />
-			<div v-else-if="serverError">
-				<ul class="list">
-					<li class="list-item center" v-for="(i, index) of serverError" :key="index">
-						{{ i.message }}
-					</li>
-				</ul>
-			</div>
+			<fileInputVue v-if="responseRequested && !serverError" 
+				:startRequest="startRequest"
+				:setNewFile="setFile"
+			/>
+			<errorLabelVue v-else-if="serverError"/>
 			<div v-else-if="showAnimation" class="center">
 				<loadingAnimationVue :step='step' />
 			</div>
-			<resultTableVue v-else-if="!responseRequested" :response="response" />
+			<resultTableVue v-else-if="!responseRequested" />
 			<transition name="slide-fade">
 				<div v-if="show" class="modal alert primary">
 					Скопировано
@@ -26,131 +22,173 @@
 </template>
 
 <script>
+
 import loadingAnimationVue from '@/components/loadingAnimation.vue';
 import resultTableVue from '@/components/resultTable.vue';
 import fileInputVue from '@/components/fileInput.vue';
+import errorLabelVue from './components/errorLabel.vue';
 
-const request = async (url, params = {}, providedOptions = {}, method = 'GET') => {
-	const options = {
-		method,
-		contentType: 'application/json',
-		body: JSON.stringify(params),
-		...providedOptions
-	};
+import {ref, provide} from 'vue';
+const axios = require('axios').default;
 
-	if ('GET' === method) {
-		url += '?' + (new URLSearchParams(params)).toString();
-	} else {
-		options.body = JSON.stringify(params);
+
+const useState = arg => {
+	const value = ref(arg)
+
+	const setValue = newValue => {
+		value.value = newValue
 	}
 
-	const response = await fetch(url, options);
-	return await response.json();
-};
-// const get = ( url, params, options={} ) => request( url, params, options, 'GET' );
-const post = (url, params, options = {}) => request(url, params, options, 'POST');
+	return [value, setValue]
+}
 
 export default {
 	name: 'App',
 	components: {
 		loadingAnimationVue,
 		resultTableVue,
-		fileInputVue
+		fileInputVue,
+		errorLabelVue
 	},
-	data: () => ({
-		file: null,
-		err: false,
-		step: 0,
-		showAnimation: false,
-		show: false,
-		response: {},
-		serverError: null
-	}),
-	emits: {
-		onFileInput: ({ newFile }) => this.file = newFile
+	setup() {
+		const response = ref({})
+		const serverError = ref(null)
+		const showAnimation = ref(false)
+		const [file, setFile] = useState(null)
+
+
+		provide('response', response)
+		provide('showAnimation', showAnimation)
+		provide('serverError', serverError)
+
+		return {
+			response,
+			showAnimation,
+			file,
+			setFile,
+			serverError,
+			err: false,
+			step: 0,
+			show: false,
+			extractedData: null,
+		}
 	},
 	methods: {
 		startRequest(event) {
 			event.preventDefault()
 			this.showAnimation = true
-
-			new Promise(
-				resolve => { // Распаковка
-					const params = this.extractInformation(this.file)
-					console.log(params)
-					this.step++
-					resolve(params)
+			this.extractInformation()
+			.then(this.countPenalties)
+			.catch(
+				err => {
+					this.serverError = Number(err.message)
 				}
-
-			)	.then(params => new Promise(
-					(resolve, reject) => { // Отправка
-						this.step++
-						post('http://37.46.132.129:7006/api/v1/', params)
-							.then(response => {
-								console.log(response)
-								if (response.status === 'error') {
-									reject(response)
-								} else {
-									resolve({
-										total_debt_amount: response.total_debt_amount,
-										total_penalty: response.total_penalty
-									})
-								}
-							});
-
-					}
-			))	.then(response => new Promise(
-					resolve => setTimeout(
-						() => {
-							this.step++
-							console.log('1')
-							resolve(response)
-						}, 2500)
-			))	.then(response => new Promise(
-					resolve => setTimeout(
-						() => {
-							this.step++
-							console.log('2')
-							resolve(response)
-						}, 500)
-			))	.then(response => new Promise(
-					resolve => setTimeout(
-						() => {
-							this.step++
-							console.log('3')
-							resolve(response)
-						}, 1000)
-			))	.then(response => {
+			)
+			.finally(
+				() => {
 					this.showAnimation = false
-					this.response = response
-			})
-				.catch(reason => {
 					this.step = 5
-					this.showAnimation = false
-					this.serverError = reason.messages
-				})
+				}
+			)
 		},
-		extractInformation: async (file) => await post(
-			'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
-			{ file },
-			{ contentType: 'multipart/form-data' }
-		)
+
+		async extractInformation() {
+			this.step++
+			const response = await axios.post(
+				'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
+				{ file: this.file },
+				{ headers: { 'Content-Type': 'multipart/form-data' } }
+			).catch(
+				() => {
+					throw new Error('1')
+				}
+			)
+
+			this.extractedData = this.handleData(response.data.data);
+		},
+
+		handleData(data) {
+			this.step++
+			const request = {
+				"type": "0",
+				"correct_debt_dates": false,
+				"rate": 2,
+				"method": 2,
+				"stop": "01.08.2022",
+				"zero_penalty": true,
+				"zero_start": "03.04.2020",
+				"zero_stop": "01.01.2021",
+				"special_rate": true,
+				"custom_rate": 0
+			}
+
+			// let dates = data['period'].split(' ')
+			let {debts, payments} = data;
+
+			debts = debts.map(
+				value => {
+					value.debt_start = value.start
+					return value
+				}
+			)
+
+			payments = payments.map(
+				value => {
+					value.date = value.payment_date
+					value.part = '1/1'
+					return value
+				}
+			)
+
+			request.debts = debts
+			request.payments = payments
+			return request
+
+		},
+
+		async countPenalties() {
+			this.step++
+			const response = await axios.post(
+				// 'http://37.46.132.129:7006/api/v1/',
+				'http://94.250.248.193:7006/api/v1/',
+				this.extractedData,
+				{ headers: { 'Content-Type': 'application/json' } }
+			).catch(
+				() => {
+					throw new Error('2')
+				}
+			)
+			if (response.data) {
+				delete response.data.result
+				this.response = this.handleResponse(response.data);
+			} else {
+				throw new Error('2')
+			}
+		},
+		
+		handleResponse(response) {
+			this.step++
+			const names = {
+				'total_debt_amount': 'Сумма задолженности',
+				'total_penalty': 'Сумма пеней'
+			}
+
+			const newResponse = {}
+
+			for (let item of Object.entries(response)) {
+				newResponse[names[item[0]]] = item[1]
+			}
+
+			return newResponse
+		}
 	},
 
 	computed: {
-
 		responseRequested() {
 			return !Object.keys(this.response).length && !this.showAnimation
 		}
-
 	},
-	watch: {
-		showAnimation() {
-			return this.file !== null & this.response === null
-		},
 
-
-	},
 
 }
 </script>

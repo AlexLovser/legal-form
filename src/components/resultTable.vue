@@ -28,12 +28,10 @@
 
 export default {
     name: 'resultTable',
-    props: {
-        response: Object,
-    },
-    data: () => ({
+    inject: [
+        'response',
+    ],
 
-    }),
     methods: {
         copy() {
             let txt = '{\n'

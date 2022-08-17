@@ -28,6 +28,7 @@
 
 export default {
     name: 'resultTable',
+    props: ['show'],
     inject: [
         'response',
     ],
@@ -42,9 +43,8 @@ export default {
             txt += '}'
         
             navigator.clipboard.writeText(txt)
-            this.show = true
 
-            setTimeout(() => {this.show = false}, 3000)
+            this.$emit('copy')
         }
     }
 }

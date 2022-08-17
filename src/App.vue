@@ -2,14 +2,17 @@
 	<div class="container center pt-5" v-cloak>
 		<div class="card field center">
 			<fileInputVue v-if="responseRequested && !serverError" 
-				:startRequest="startRequest"
-				:setNewFile="setFile"
+				@submit="startRequest"
+				@file-change="fileChange"
 			/>
-			<errorLabelVue v-else-if="serverError"/>
+			<errorLabelVue v-else-if="serverError" :serverError="serverError"/>
 			<div v-else-if="showAnimation" class="center">
-				<loadingAnimationVue :step='step' />
+				<loadingAnimationVue :step="step" />
 			</div>
-			<resultTableVue v-else-if="!responseRequested" />
+			<resultTableVue v-else-if="!responseRequested" 
+				:show="show"
+				@copy="onCopy"
+			/>
 			<transition name="slide-fade">
 				<div v-if="show" class="modal alert primary">
 					Скопировано
@@ -32,16 +35,6 @@ import {ref, provide} from 'vue';
 const axios = require('axios').default;
 
 
-const useState = arg => {
-	const value = ref(arg)
-
-	const setValue = newValue => {
-		value.value = newValue
-	}
-
-	return [value, setValue]
-}
-
 export default {
 	name: 'App',
 	components: {
@@ -54,31 +47,40 @@ export default {
 		const response = ref({})
 		const serverError = ref(null)
 		const showAnimation = ref(false)
-		const [file, setFile] = useState(null)
-
+		const file = ref(null)
+		const show = ref(null)
 
 		provide('response', response)
 		provide('showAnimation', showAnimation)
 		provide('serverError', serverError)
+		provide('file', file)
 
 		return {
 			response,
 			showAnimation,
 			file,
-			setFile,
 			serverError,
+			show,
+			address: null,
 			err: false,
 			step: 0,
-			show: false,
 			extractedData: null,
 		}
 	},
 	methods: {
-		startRequest(event) {
-			event.preventDefault()
+		fileChange (newFile) {
+			this.file = newFile
+		},	
+		onCopy() {
+			this.show = true
+            setTimeout(() => {this.show = false}, 3000)
+		},
+		startRequest() {
 			this.showAnimation = true
 			this.extractInformation()
 			.then(this.countPenalties)
+			.then(this.searchCourt)
+			.then(this.completeRequest)
 			.catch(
 				err => {
 					this.serverError = Number(err.message)
@@ -94,6 +96,7 @@ export default {
 
 		async extractInformation() {
 			this.step++
+			console.log(this.file)
 			const response = await axios.post(
 				'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
 				{ file: this.file },
@@ -105,6 +108,7 @@ export default {
 			)
 
 			this.extractedData = this.handleData(response.data.data);
+			
 		},
 
 		handleData(data) {
@@ -122,8 +126,9 @@ export default {
 				"custom_rate": 0
 			}
 
-			// let dates = data['period'].split(' ')
-			let {debts, payments} = data;
+			let {debts, payments, address} = data;
+
+			this.address = address
 
 			debts = debts.map(
 				value => {
@@ -142,6 +147,7 @@ export default {
 
 			request.debts = debts
 			request.payments = payments
+			
 			return request
 
 		},
@@ -160,17 +166,41 @@ export default {
 			)
 			if (response.data) {
 				delete response.data.result
-				this.response = this.handleResponse(response.data);
+				this.response = response.data;
 			} else {
 				throw new Error('2')
 			}
 		},
 		
+		async searchCourt() {
+			this.step++
+			const address = this.address
+			if (address && address !== '') {
+				const response = await axios.post(
+					'https://search.allcourts.ru/api/v1/by_address',
+					{ address, parent: true, requisites: true },
+					{ headers: { 'Content-Type': 'application/json' } }
+				)
+				.catch(
+					() => {
+						throw new Error('3')
+					}
+				)
+				
+				this.response.address = response.data.data.address
+			}
+		},
+		
+		completeRequest() {
+			this.response = this.handleResponse(this.response);
+		},
+
 		handleResponse(response) {
 			this.step++
 			const names = {
 				'total_debt_amount': 'Сумма задолженности',
-				'total_penalty': 'Сумма пеней'
+				'total_penalty': 'Сумма пеней',
+				'address': 'Адресс ближайшего суда'
 			}
 
 			const newResponse = {}

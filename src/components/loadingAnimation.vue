@@ -1,7 +1,7 @@
 <template>
 <div class="loading" v-cloak>
     <transition appear v-for="i in 5" @appear="el => startAnim(el, i-1)" :key="i" >
-        <div class="btn default"></div>
+        <div :class="['btn', i == 1 ? 'primary' : 'default']"></div>
     </transition>
 </div>
 <h3>{{possibleTitles[step]}}...</h3>
@@ -39,7 +39,7 @@ export default {
                             }
                         })
                     )
-                }, (!(ind % 2) ? 0.8 : 0) * 1000
+                }, ((ind % 2) ? 0.8 : 0) * 1000
             )
         },
     },

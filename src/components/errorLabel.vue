@@ -9,10 +9,9 @@
         </span>
         <span v-else>
             Непредвиденная ошибка!
-            <a @click="$forceUpdate()">Вернуться на главную</a>
         </span>
         <hr />
-        <a href="$forceUpdate()">Вернуться на главную</a>
+        <a href=''>Вернуться на главную</a>
     </div>
     
 </template>

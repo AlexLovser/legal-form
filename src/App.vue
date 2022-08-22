@@ -63,7 +63,7 @@ export default {
 			show,
 			address: null,
 			err: false,
-			step: 0,
+			step: 1,
 			extractedData: null,
 		}
 	},

@@ -21,6 +21,7 @@
               </span>
             </tr>
           </table>
+          <a href='' class="mt-2">Вернуться на главную</a>
       </span>
 </template>
 

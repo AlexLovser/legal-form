@@ -1,10 +1,10 @@
 import { createApp } from 'vue';
 import App from './App.vue'; 
 import Unicon from 'vue-unicons';
-import { uniLayerGroupMonochrome, uniCopy } from 'vue-unicons/dist/icons';
+import { uniCopy, uniPlusCircle, uniTimesCircle } from 'vue-unicons/dist/icons';
 
 
-Unicon.add([uniLayerGroupMonochrome, uniCopy]);
+Unicon.add([ uniCopy, uniPlusCircle, uniTimesCircle]);
 
 const app = createApp(App)
 app.config.unwrapInjectedRef = true

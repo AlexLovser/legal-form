@@ -1,0 +1,16 @@
+.copy-icon {
+    position: absolute;
+    align-self: self-end;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem;
+    background-color: rgb(240, 240, 240);
+    border: #929292 solid 2px;
+    border-radius: 25%;
+
+}
+
+.copy-icon:hover {
+    opacity: 0.5;
+}

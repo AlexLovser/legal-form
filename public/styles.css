@@ -203,46 +203,7 @@ h3 {
     flex-direction: column;
 }
 
-.form-control {
-    position: relative;
-    padding: 3rem;
-    margin-bottom: 0.5rem;
-}
 
-.form-control input,
-.form-control select {
-    margin: 0;
-    outline: none;
-    border: 2px solid #ccc;
-    display: flex;
-    width: 100%;
-    max-width: 430px;
-    color: #2c3e50;
-    padding: 0.5rem 1rem;
-    border-radius: 3px;
-    font-size: 1rem;
-}
-
-.form-control small {
-    color: #e53935;
-}
-
-.form-control.invalid input {
-    border-color: #e53935;
-}
-
-
-.form-control label {
-    display: block;
-    margin: 0 0 0.3rem 0.3rem;
-    font-weight: 500;
-}
-
-.form-control input:active,
-.form-control input:focus {
-    transition: border 0.22s;
-    border: 2px solid #42b983;
-}
 
 .card {
     overflow: hidden;

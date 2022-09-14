@@ -2,6 +2,8 @@
     <div class="container center pt-5" v-cloak>
         <div class="card center">
             <mainInputVue v-if="responseRequested && !serverError" 
+                @submit="startRequest"
+                @alert="onAlert"
             />
             <errorLabelVue v-else-if="serverError" :serverError="serverError"/>
             <div v-else-if="showAnimation" class="center">
@@ -9,11 +11,11 @@
             </div>
             <resultTableVue v-else-if="!responseRequested" 
                 :show="show"
-                @copy="onCopy"
+                @alert="onAlert"
             />
             <transition name="slide-fade">
                 <div v-if="show" class="modal alert primary">
-                    Скопировано
+                    {{alertTitle}}
                 </div>
             </transition>
 
@@ -59,8 +61,8 @@ export default {
             file,
             serverError,
             show,
+            alertTitle: '',
             address: null,
-            err: false,
             step: 1,
             extractedData: null,
         }
@@ -69,11 +71,18 @@ export default {
         fileChange (newFile) {
             this.file = newFile
         },    
-        onCopy() {
+
+        onAlert(text) {
+            this.alertTitle = text
             this.show = true
-            setTimeout(() => {this.show = false}, 3000)
+            setTimeout(() => {
+                this.show = false
+                this.alertTitle = ''
+            }, 3000)
         },
-        startRequest() {
+        startRequest(receivedForm) {
+            receivedForm = receivedForm.target
+            console.log(receivedForm)
             this.showAnimation = true
             this.extractInformation()
             .then(this.countPenalties)
@@ -94,7 +103,6 @@ export default {
 
         async extractInformation() {
             this.step++
-            console.log(this.file)
             const response = await axios.post(
                 'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
                 { file: this.file },

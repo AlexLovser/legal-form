@@ -2,12 +2,11 @@
     <div class="row">
         <input type="file" @input="handleFileChange" style="display: none" :id="custom_id"/>
         <button class="btn" @click="handlePress">
-            {{title}}
+            <unicon name="database" fill="#3eaf7c" ></unicon> {{title}}
         </button>
     </div>
-    
-
 </template>
+
 
 <script>
 import "../mainInput.css";

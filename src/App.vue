@@ -1,6 +1,6 @@
 <template>
     <div class="container center pt-5" v-cloak>
-        <div class="card center">
+        <div class="card center" >
             <mainInputVue v-if="responseRequested && !serverError" 
                 @submit="startRequest"
                 @alert="onAlert"
@@ -77,7 +77,6 @@ export default {
             this.show = true
             setTimeout(() => {
                 this.show = false
-                this.alertTitle = ''
             }, 3000)
         },
         startRequest(receivedForm) {

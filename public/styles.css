@@ -14,7 +14,16 @@ body {
     -moz-osx-font-smoothing: grayscale;
     font-size: 16px;
     color: #2c3e50;
-    background: #2c3e50;
+    /* background: #2c3e50; */
+    background: hsla(153, 48%, 46%, 1);
+
+    background: radial-gradient(circle, hsla(153, 48%, 46%, 1) 0%, hsla(210, 29%, 24%, 1) 80%);
+
+    background: -moz-radial-gradient(circle, hsla(153, 48%, 46%, 1) 0%, hsla(210, 29%, 24%, 1) 80%);
+
+    background: -webkit-radial-gradient(circle, hsla(153, 48%, 46%, 1) 0%, hsla(210, 29%, 24%, 1) 80%);
+
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#3EAF7C", endColorstr="#2C3E50", GradientType=1 );
 }
 
 hr {
@@ -42,10 +51,10 @@ a {
     font-weight: 500;
     text-decoration: none;
 }
-td {
+/* td {
     padding: 5px;
     
-}
+} */
 
 tr {
     min-height: min-content;
@@ -106,6 +115,9 @@ h3 {
     outline: none;
     background: #fff;
     transition: all 0.22s;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
 }
 
 .btn:hover {
@@ -203,16 +215,13 @@ h3 {
     flex-direction: column;
 }
 
-
-
 .card {
     overflow: hidden;
-    padding: 1rem;
+    /* padding: 1rem; */
     margin-bottom: 1rem;
     border-radius: 10px;
     box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
     background: #fff;
-    min-width: 500;
 }
 
 .card.marked {

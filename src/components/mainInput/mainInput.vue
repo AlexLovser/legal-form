@@ -166,7 +166,7 @@
                                         v-model="item.month"
                                     />
                                 </td>
-                                <td v-if="item.id === allDettes.at(-1).id" @click="addPayment">
+                                <td v-if="item.id === allPayments.at(-1).id" @click="addPayment">
                                     <unicon name="enter" fill="#3eaf7c"></unicon>
                                 </td>
                                 <td v-else @click="deleteDette(item.id)">

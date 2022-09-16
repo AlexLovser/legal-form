@@ -2,7 +2,7 @@
     <div class="container center pt-5" v-cloak>
         <div class="card center" >
             <mainInputVue v-if="responseRequested && !serverError" 
-                @submit="startRequest"
+                @submit-form="startRequest"
                 @alert="onAlert"
             />
             <errorLabelVue v-else-if="serverError" :serverError="serverError"/>
@@ -14,7 +14,7 @@
                 @alert="onAlert"
             />
             <transition name="slide-fade">
-                <div v-if="show" class="modal alert primary">
+                <div v-if="show" :class="['modal', 'alert', alertType]">
                     {{alertTitle}}
                 </div>
             </transition>
@@ -62,6 +62,7 @@ export default {
             serverError,
             show,
             alertTitle: '',
+            alertType: 'primary',
             address: null,
             step: 1,
             extractedData: null,
@@ -72,19 +73,21 @@ export default {
             this.file = newFile
         },    
 
-        onAlert(text) {
-            this.alertTitle = text
+        onAlert(data) {
+            const {message, type} = data;
+            this.alertTitle = message
+            this.alertType = type
             this.show = true
+            
             setTimeout(() => {
                 this.show = false
-            }, 3000)
+            }, 3500)
         },
         startRequest(receivedForm) {
             receivedForm = receivedForm.target
             console.log(receivedForm)
             this.showAnimation = true
-            this.extractInformation()
-            .then(this.countPenalties)
+            this.countPenalties
             .then(this.searchCourt)
             .then(this.completeRequest)
             .catch(
@@ -98,63 +101,6 @@ export default {
                     this.step = 5
                 }
             )
-        },
-
-        async extractInformation() {
-            this.step++
-            const response = await axios.post(
-                'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
-                { file: this.file },
-                { headers: { 'Content-Type': 'multipart/form-data' } }
-            ).catch(
-                () => {
-                    throw new Error('1')
-                }
-            )
-
-            this.extractedData = this.handleData(response.data.data);
-            
-        },
-
-        handleData(data) {
-            this.step++
-            const request = {
-                "type": "0",
-                "correct_debt_dates": false,
-                "rate": 2,
-                "method": 2,
-                "stop": "01.08.2022",
-                "zero_penalty": true,
-                "zero_start": "03.04.2020",
-                "zero_stop": "01.01.2021",
-                "special_rate": true,
-                "custom_rate": 0
-            }
-
-            let {debts, payments, address} = data;
-
-            this.address = address
-
-            debts = debts.map(
-                value => {
-                    value.debt_start = value.start
-                    return value
-                }
-            )
-
-            payments = payments.map(
-                value => {
-                    value.date = value.payment_date
-                    value.part = '1/1'
-                    return value
-                }
-            )
-
-            request.debts = debts
-            request.payments = payments
-            
-            return request
-
         },
 
         async countPenalties() {

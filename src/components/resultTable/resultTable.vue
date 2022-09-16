@@ -45,7 +45,7 @@ export default {
         
             navigator.clipboard.writeText(txt)
 
-            this.$emit('copy')
+            this.$emit('alert', {message: 'Результат скопирован в буффер обмена', type: 'primary'})
         }
     }
 }

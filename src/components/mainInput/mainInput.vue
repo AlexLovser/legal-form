@@ -59,7 +59,6 @@
                         </button>
                         <br />
                         <br />
-                        {{allDebts}}
                     </div>
                 </td>
                 <td class="cell">

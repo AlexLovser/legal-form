@@ -46,7 +46,7 @@
 
             <tr class="card mt-1">
                 <td class="column">
-                    <strong>Задолженности</strong>
+                    <strong>Задолженности [ {{allDebts.length}} ]</strong>
                     <div class="alert plain warning"><br />Обычно ежемесячные платежи<br /><br /></div>
                     <div class="alert plain">
                         <br />
@@ -109,7 +109,7 @@
                         <option value="5">Указанную дату</option>
                     </select>
                     <span v-if="mainForm.rate === '5'">
-                        <input type="date" placeholder="дд.мм.гггг" style="margin-top: 1rem">
+                        <input type="date" placeholder="дд.мм.гггг" style="margin-top: 1rem" v-model="mainForm.providedDate">
                     </span>
 
                 </td>
@@ -134,7 +134,7 @@
 
             <tr class="card mt-1">
                 <td class="column">
-                    <strong>Частичная оплата задолженности</strong>
+                    <strong>Частичная оплата задолженности [ {{allPayments.length}} ]</strong>
                     <div class="alert plain">
                         <br />
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
@@ -200,18 +200,16 @@
                     <table>
                         <tr>
                             <td style="display: flex; align-items: center">
-                                <input value="0" type="radio" name="resultView" checked="">
+                                <input value="0" type="radio" name="resultView" v-model="mainForm.resultView">&nbsp;&nbsp;Обычный
                             </td>
-                            <td>Обычный</td>
 
                         </tr>
                         <tr>
                             <td style="display: flex; align-items: center">
-                                <input value="1" type="radio" name="resultView">
+                                <input value="1" type="radio" name="resultView" v-model="mainForm.resultView">&nbsp;&nbsp;Бухгалтерский
                             </td>
-                            <td>Бухгалтерский</td>
-
                         </tr>
+                        {{$refs.resultView}}
                     </table>
                 </td>
             </tr>
@@ -228,8 +226,8 @@
                 </td>
                 <td class="cell">
                     <div class="row">
-                        <input type="checkbox" id="sign" checked=""
-                            style="width: 17px; height: 17px">&nbsp;&nbsp;Подпись сайта калькулятора расчёта при печати
+                        <input type="checkbox" id="sign" v-model="mainForm.signWhilePrint"
+                            style="width: 16px; height: 16px">&nbsp;&nbsp;Подпись сайта калькулятора расчёта при печати
                     </div>
                 </td>
             </tr>
@@ -273,7 +271,10 @@ export default {
         const mainForm = ref({
             endDate: today,
             rate: '1',
+            'providedDate': '',
             method: '1',
+            'resultView': '0',
+            'signWhilePrint': true,
             debts: [
                 {
                     id: 0,
@@ -305,7 +306,6 @@ export default {
 
     methods: {
         orderDebts() {
-
         },
 
         submitForm() {
@@ -451,10 +451,9 @@ export default {
         },
 
         addDebt() {
-            let x = uuidv4()
             this.mainForm.debts.push(
                 {
-                    id: x,
+                    id: uuidv4(),
                     debt_start: '',
                     amount: ''
                 }
@@ -487,7 +486,13 @@ export default {
     },
     computed: {
         isDisabled() {
-            return false
+            return !(
+                this.allDebts.length &&
+                this.allPayments.length &&
+                this.mainForm.rate &&
+                this.mainForm.endDate &&
+                this.mainForm.method
+            )
         },
         allDebts() {
             let initial = [...this.mainForm.debts]

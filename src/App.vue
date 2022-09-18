@@ -31,6 +31,7 @@ import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
 import errorLabelVue from './components/errorLabel/errorLabel.vue';
 
+
 import {ref, provide} from 'vue';
 const axios = require('axios').default;
 
@@ -86,7 +87,9 @@ export default {
         startRequest(receivedForm) {
             receivedForm = receivedForm.target
             console.log(receivedForm)
-            this.showAnimation = true
+
+            return
+            /* this.showAnimation = true
             this.countPenalties
             .then(this.searchCourt)
             .then(this.completeRequest)
@@ -100,7 +103,7 @@ export default {
                     this.showAnimation = false
                     this.step = 5
                 }
-            )
+            ) */
         },
 
         async countPenalties() {

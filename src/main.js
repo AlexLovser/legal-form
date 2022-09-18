@@ -10,7 +10,8 @@ import {
     uniRedo, 
     uniTimes,
     uniPlus,
-    uniFileSlash
+    uniFileSlash,
+    uniFileCheck
 } from 'vue-unicons/dist/icons';
 
 
@@ -23,7 +24,8 @@ Unicon.add([
     uniRedo, 
     uniTimes, 
     uniPlus,
-    uniFileSlash
+    uniFileSlash,
+    uniFileCheck
 ]);
 
 const app = createApp(App);

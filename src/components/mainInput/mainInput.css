@@ -134,3 +134,18 @@
     align-items: center;
     justify-content: flex-start;
 }
+
+.indexing {
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    border: 2px solid #ccc;
+    border-radius: 3px;
+}
+
+.dp-input {
+    display: flex; 
+    width: 279px; 
+    height: 100%; 
+    margin: none;
+}

@@ -45,6 +45,10 @@ p,
 ul {
     line-height: 1.7;
 }
+input {
+    min-height: 41px;
+    max-height: 41px;
+}
 
 a {
     color: #3eaf7c;

@@ -22,6 +22,11 @@
                         <fileInput @fileInput="addFile" :disabled="mainForm.imported.length === 10" />
                         <br />
                         <br />
+                        <span class="row">
+                            <unicon name="file-check" fill="#42b983" height="30" width="30" style="margin-right: 1rem"></unicon> 
+                            <span>Значок обозначает, что данная запись была добавлена из файла</span>
+                        </span> 
+                        <br>
                     </div>
                 </td>
                 <td class="cell">
@@ -29,6 +34,7 @@
                         <li v-for="file in mainForm.imported" :key="file.id" class="row">
                             <button class="file-item" style="min-width: 350px">
                                 {{file.name}}
+                                <unicon name="file-check" fill="#fff" height="30" width="30" style="margin-right: 1rem"></unicon> 
                             </button>
                             <button class="file-item" style="background: #e53935; border-color: #e53935;"
                                 @click="deleteFile(file.id)">
@@ -58,7 +64,7 @@
                             Вставить из буффера
                         </button>
                         <br />
-                        <br />
+                        {{mainForm.debts}}
                     </div>
                 </td>
                 <td class="cell">
@@ -66,26 +72,43 @@
                         <table class="inner-table">
 
                             <tr>
+                                <td></td>
                                 <td class="plain">Начало просрочки</td>
                                 <td class="plain">Сумма</td>
                                 <td class="plain"></td>
 
                             </tr>
 
-                            <tr v-for="item in allDebts" :key="item.id" lazy>
-                                <td>
-                                    <input @keypress.enter="handleEnter" type="date" placeholder="дд.мм.гггг"
-                                        min="2000-01-01" max="2023-01-01" v-model="item.debt_start" required />
+                            <tr v-for="item, index in allDebts" :key="item.id">
+                                <td class="indexing plain" style="width: 42px; height: 42px">
+                                    {{index + 1}}
                                 </td>
                                 <td>
-                                    <input @keypress="isNumber" @keypress.enter="addDebt" placeholder="сумма долга"
-                                        v-model="item.amount" required />
+                                    <dateInputVue 
+                                        format="dd.MM.yyyy"
+                                        @date-input="newValue => item.debt_start = newValue" />
+
+                                </td>
+                                <td>
+                                    <input 
+                                        placeholder="сумма долга"
+                                        v-model="item.amount"
+                                        @keypress="isNumber"
+                                        @keypress.enter="addDebt"
+                                        required />
                                 </td>
                                 <td v-if="item.id === allDebts.at(-1).id" @click="addDebt">
                                     <unicon name="enter" fill="#3eaf7c"></unicon>
                                 </td>
                                 <td v-else @click="deleteDebt(item.id)">
                                     <unicon name="trash-alt" fill="#e53935"></unicon>
+                                </td>
+
+                                <td v-if="item.file !== undefined" :title="item.file">
+                                    <unicon name="file-check" fill="#42b983"></unicon> 
+                                </td>
+                                <td v-else>
+
                                 </td>
                             </tr>
 
@@ -109,7 +132,11 @@
                         <option value="5">Указанную дату</option>
                     </select>
                     <span v-if="mainForm.rate === '5'">
-                        <input type="date" placeholder="дд.мм.гггг" style="margin-top: 1rem" v-model="mainForm.providedDate">
+                        <dateInputVue 
+                            style="margin-top: 1rem"
+                            format="dd.MM.yyyy"
+                            @date-input="newValue => mainForm.providedDate = newValue" 
+                        />
                     </span>
 
                 </td>
@@ -126,9 +153,10 @@
                     </div>
                 </td>
                 <td class="row cell">
-                    <input placeholder="дд.мм.гггг" v-model="mainForm.endDate" min="2000-01-01" max="2023-01-01"
-                        required type="date">
-
+                    <dateInputVue 
+                        format="dd.MM.yyyy"
+                        @date-input="newValue => mainForm.endDate = newValue" 
+                    />
                 </td>
             </tr>
 
@@ -152,22 +180,31 @@
                     <div class="row" style="align-items: center">
                         <table>
                             <tr>
+                                <td></td>
                                 <td class="plain">Дата оплаты</td>
                                 <td class="plain">Сумма</td>
                                 <td class="plain">Месяц (если указан)</td>
                             </tr>
 
-                            <tr v-for="item in allPayments" :key="item.id">
-                                <td>
-                                    <input type="date" min="2000-01-01" max="2023-01-01" placeholder="дд.мм.гггг"
-                                        v-model="item.payment_date" />
+                            <tr v-for="item, index in allPayments" :key="item.id">
+                                <td class="indexing plain" style="width: 42px; height: 42px">
+                                    {{index + 1}}
                                 </td>
                                 <td>
-                                    <input placeholder="сумма долга" v-model="item.amount" @keypress="isNumber" />
+                                    <dateInputVue 
+                                        format="dd.MM.yyyy"
+                                        @date-input="newValue => item.payment_date = newValue" 
+                                    />
                                 </td>
                                 <td>
-                                    <input type="date" min="2000-01-01" max="2023-01-01" placeholder="мм.гггг"
-                                        v-model="item.month" />
+                                    <input placeholder="сумма долга" v-model="item.amount" @keypress="isNumber" required/>
+                                </td>
+                                <td>
+                                    <dateInputVue 
+                                        format="MM.yyyy"
+                                        @date-input="newValue => item.month = newValue" 
+                                    />
+
                                 </td>
                                 <td v-if="item.id === allPayments.at(-1).id" @click="addPayment">
                                     <unicon name="enter" fill="#3eaf7c"></unicon>
@@ -200,16 +237,15 @@
                     <table>
                         <tr>
                             <td style="display: flex; align-items: center">
-                                <input value="0" type="radio" name="resultView" v-model="mainForm.resultView">&nbsp;&nbsp;Обычный
+                                <input value="0" type="radio" name="resultView" v-model="mainForm.resultView" required>&nbsp;&nbsp;Обычный
                             </td>
 
                         </tr>
                         <tr>
                             <td style="display: flex; align-items: center">
-                                <input value="1" type="radio" name="resultView" v-model="mainForm.resultView">&nbsp;&nbsp;Бухгалтерский
+                                <input value="1" type="radio" name="resultView" v-model="mainForm.resultView" required>&nbsp;&nbsp;Бухгалтерский
                             </td>
                         </tr>
-                        {{$refs.resultView}}
                     </table>
                 </td>
             </tr>
@@ -226,7 +262,7 @@
                 </td>
                 <td class="cell">
                     <div class="row">
-                        <input type="checkbox" id="sign" v-model="mainForm.signWhilePrint"
+                        <input type="checkbox" id="sign" v-model="mainForm.signWhilePrint" required
                             style="width: 16px; height: 16px">&nbsp;&nbsp;Подпись сайта калькулятора расчёта при печати
                     </div>
                 </td>
@@ -253,20 +289,18 @@ import { inject, ref } from 'vue';
 import fileInput from './fileInput/fileInput'
 const axios = require('axios').default;
 import { v4 as uuidv4 } from 'uuid';
+import dateInputVue from './dateInput/dateInput.vue';
 
 
 export default {
     name: 'mainInput',
     components: {
-        fileInput
+        fileInput,
+        dateInputVue
     },
 
     setup() {
         var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = today.getFullYear();
-        today = yyyy + '-' + mm + '-' + dd
 
         const mainForm = ref({
             endDate: today,
@@ -277,15 +311,15 @@ export default {
             'signWhilePrint': true,
             debts: [
                 {
-                    id: 0,
-                    debt_start: '',
+                    id: uuidv4(),
+                    debt_start: today,
                     amount: ''
                 }
             ],
             payments: [
                 {
-                    id: 0,
-                    payment_date: '',
+                    id: uuidv4(),
+                    payment_date: today,
                     amount: '',
                     month: ''
                 }
@@ -298,6 +332,7 @@ export default {
         const showAnimation = inject('showAnimation')
 
         return {
+            today,
             mainForm,
             response,
             showAnimation,
@@ -305,9 +340,6 @@ export default {
     },
 
     methods: {
-        orderDebts() {
-        },
-
         submitForm() {
             const myForm = { ...this.mainForm }
 
@@ -391,7 +423,6 @@ export default {
         },
 
         handleData(data) {
-            this.step++
             const request = {
                 "type": "0",
                 "correct_debt_dates": false,
@@ -409,19 +440,16 @@ export default {
 
             this.address = address
 
-
-            const dateReformat = string => string.split('.').reverse().join('-')
-
             debts = debts.map(
                 value => {
-                    value.debt_start = dateReformat(value.start)
+                    value.debt_start = new Date(value.start)
                     return value
                 }
             )
 
             payments = payments.map(
                 value => {
-                    value.payment_date = dateReformat(value.payment_date)
+                    value.payment_date = new Date(value.payment_date)
                     value.part = '1/1'
                     return value
                 }
@@ -454,7 +482,7 @@ export default {
             this.mainForm.debts.push(
                 {
                     id: uuidv4(),
-                    debt_start: '',
+                    debt_start: this.today,
                     amount: ''
                 }
             )
@@ -495,13 +523,19 @@ export default {
             )
         },
         allDebts() {
-            let initial = [...this.mainForm.debts]
+            let initial = []
 
             for (let elem of this.mainForm.imported) {
-                initial.push(...elem.debts)
+                initial.push(...elem.debts.map(
+                    item => {
+                        item.file = elem.name
+                        return item
+                    }
+                ))
             }
+            initial.push(...this.mainForm.debts)
 
-            let bothCompleted = []
+           /*  let bothCompleted = []
             let oneIsEmpty = []
             let twoAreEmpty = []
             
@@ -518,9 +552,10 @@ export default {
 
             bothCompleted = bothCompleted.sort(
                 (a, b) => new Date(a.debt_start) - new Date(b.debt_start)
-            )
+            ) */
             
-            return [...bothCompleted, ...oneIsEmpty, ...twoAreEmpty]
+            // return [...bothCompleted, ...oneIsEmpty, ...twoAreEmpty]
+            return initial
 
         },
 

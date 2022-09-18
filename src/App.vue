@@ -25,15 +25,15 @@
 </template>
 
 <script>
+import { useMainStore } from './stores/mainStore';
 
 import loadingAnimationVue from '@/components/loadingAnimation/loadingAnimation.vue';
 import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
 import errorLabelVue from './components/errorLabel/errorLabel.vue';
 
-
-import {ref, provide} from 'vue';
 const axios = require('axios').default;
+
 
 
 export default {
@@ -45,35 +45,11 @@ export default {
         errorLabelVue
     },
     setup() {
-        const response = ref({})
-        const serverError = ref(null)
-        const showAnimation = ref(false)
-        const file = ref(null)
-        const show = ref(null)
+        const { response, step, showAnimation, show, serverError } = useMainStore();
 
-        provide('response', response)
-        provide('showAnimation', showAnimation)
-        provide('serverError', serverError)
-        provide('file', file)
-
-        return {
-            response,
-            showAnimation,
-            file,
-            serverError,
-            show,
-            alertTitle: '',
-            alertType: 'primary',
-            address: null,
-            step: 1,
-            extractedData: null,
-        }
+        return { response, step, showAnimation, show, serverError }
     },
     methods: {
-        fileChange (newFile) {
-            this.file = newFile
-        },    
-
         onAlert(data) {
             const {message, type} = data;
             this.alertTitle = message
@@ -84,6 +60,7 @@ export default {
                 this.show = false
             }, 3500)
         },
+        
         startRequest(receivedForm) {
             receivedForm = receivedForm.target
             console.log(receivedForm)
@@ -107,7 +84,6 @@ export default {
         },
 
         async countPenalties() {
-            this.step++
             const response = await axios.post(
                 // 'http://37.46.132.129:7006/api/v1/',
                 'http://94.250.248.193:7006/api/v1/',

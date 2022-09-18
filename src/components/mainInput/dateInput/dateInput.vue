@@ -3,21 +3,22 @@
         <Datepicker 
             inputClassName="dp-input"
             menuClassName="dp-custom-menu"
-            placeholder="дд.мм.гггг"
+            :placeholder="format === 'MM.yyyy' ? 'мм.гггг': 'дд.мм.гггг'"
             selectText="Выбрать"
             nowButtonLabel="Сегодня"
             cancelText="Отмена"
             :noHoursOverlay="true"
             :noMinutesOverlay="true"
             :noSecondsOverlay="true"
-            utc="preserve"
             :hideInputIcon="true"
+            :monthPicker="format === 'MM.yyyy'"
             :clearable="false"
             :minDate="new Date(2000, 1, 1, 0, 0, 0, 0)"
             :maxDate="new Date()"
             :format="format"
             :previewFormat="format"
             v-model="date"
+            utc="+3"
         />
     </div>
 

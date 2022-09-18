@@ -13,8 +13,10 @@ import {
     uniFileSlash,
     uniFileCheck
 } from 'vue-unicons/dist/icons';
+import { createPinia } from 'pinia/dist/pinia';
 
-
+const pinia = createPinia();
+	
 Unicon.add([ 
     uniCopy, 
     uniTimesCircle, 
@@ -29,7 +31,9 @@ Unicon.add([
 ]);
 
 const app = createApp(App);
+
 app.config.unwrapInjectedRef = true;
 app
 .use(Unicon)
+.use(pinia)
 .mount('#app');

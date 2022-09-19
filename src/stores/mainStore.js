@@ -8,10 +8,11 @@ export const useMainStore = defineStore('mainStore', {
             serverError: null,
             showAnimation: false,
             file: null,
-            show:false,
         };
     },
-    actions: {
-        
+    getters: {
+        responseRequested() {
+            return !Object.keys(this.response).length && !this.showAnimation;
+        }
     },
 });

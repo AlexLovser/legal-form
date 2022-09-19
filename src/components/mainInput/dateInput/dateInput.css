@@ -19,3 +19,15 @@
     transition: border 0.22s;
     border: #e53935 2px solid;
 }
+
+
+.dp-menu {
+    color: #3eaf7c;
+    box-shadow: 0 0 6px #3eaf7c;
+    padding-bottom: 1rem;
+}
+
+.dp-menu button {
+    color: #3eaf7c;
+    border: #3eaf7c 2px solid;
+}

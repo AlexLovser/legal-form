@@ -1,15 +1,18 @@
 <template>
     <div class="container center pt-5" v-cloak>
         <div class="card center" >
-            <mainInputVue v-if="responseRequested && !serverError" 
+            <mainInputVue 
                 @submit-form="startRequest"
                 @alert="onAlert"
             />
-            <errorLabelVue v-else-if="serverError" :serverError="serverError"/>
-            <div v-else-if="showAnimation" class="center">
+            
+            <div v-if="store.showAnimation" class="center">
                 <loadingAnimationVue :step="step" />
             </div>
-            <resultTableVue v-else-if="!responseRequested" 
+
+            
+            <errorLabelVue v-else-if="store.serverError" :serverError="store.serverError"/>
+            <resultTableVue v-else-if="!store.responseRequested" 
                 :show="show"
                 @alert="onAlert"
             />
@@ -44,12 +47,22 @@ export default {
         mainInputVue,
         errorLabelVue
     },
+    data() {
+        return {
+            show: false,
+            alertTitle: '',
+            alertType: '',
+            step: 0
+        }
+    },
     setup() {
-        const { response, step, showAnimation, show, serverError } = useMainStore();
-
-        return { response, step, showAnimation, show, serverError }
+        return {store: useMainStore()}
     },
     methods: {
+
+        scrollToBottom() {
+            window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+        },
         onAlert(data) {
             const {message, type} = data;
             this.alertTitle = message
@@ -62,11 +75,63 @@ export default {
         },
         
         startRequest(receivedForm) {
-            receivedForm = receivedForm.target
-            console.log(receivedForm)
+            this.store.showAnimation = true;
+            setTimeout(this.scrollToBottom, 500)
 
-            return
-            /* this.showAnimation = true
+            const request = {
+                "type": "0",
+                "correct_debt_dates": false,
+                "rate": 2,
+                "method": 2,
+                "stop": "01.08.2022",
+                "zero_penalty": true,
+                "zero_start": "03.04.2020",
+                "zero_stop": "01.01.2021",
+                "special_rate": true,
+                "custom_rate": 0,
+            };
+
+            function padTo2Digits(num) {
+                return num.toString().padStart(2, '0');
+            }
+
+            const reformatDate = date => {
+                return [
+                    padTo2Digits(date.getDate()),
+                    padTo2Digits(date.getMonth() + 1),
+                    date.getFullYear(),
+                ].join('.')
+            }
+
+            receivedForm.debts = receivedForm.debts.map(debt => {
+                debt.debt_start = reformatDate(debt.debt_start)
+                debt.amount = Number(debt.amount)
+                delete debt.id
+                return debt
+            })
+            receivedForm.payments = receivedForm.payments.map(payment => {
+                payment.payment_date = reformatDate(payment.payment_date)
+                payment.amount = Number(payment.amount)
+                delete payment.id
+                return payment
+            })
+
+            request.rate = Number(receivedForm.rate)
+            if (request.rate === '4') {
+                request.exact_date = reformatDate(receivedForm.exactDate)
+            }
+
+            request.stop = reformatDate(receivedForm.endDate)
+
+            request.method = Number(receivedForm.method)
+            request.debts = receivedForm.debts
+            request.payments = receivedForm.payments
+            
+
+            console.log(request)
+
+
+            /* 
             this.countPenalties
             .then(this.searchCourt)
             .then(this.completeRequest)
@@ -96,7 +161,7 @@ export default {
             )
             if (response.data) {
                 delete response.data.result
-                this.response = response.data;
+                this.store.response = response.data;
             } else {
                 throw new Error('2')
             }
@@ -117,12 +182,12 @@ export default {
                     }
                 )
                 
-                this.response.address = response.data.data.address
+                this.store.response.address = response.data.data.address
             }
         },
         
         completeRequest() {
-            this.response = this.handleResponse(this.response);
+            this.store.response = this.handleResponse(this.response);
         },
 
         handleResponse(response) {
@@ -144,9 +209,7 @@ export default {
     },
 
     computed: {
-        responseRequested() {
-            return !Object.keys(this.response).length && !this.showAnimation
-        }
+        
     },
 
 

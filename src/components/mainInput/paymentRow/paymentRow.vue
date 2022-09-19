@@ -11,6 +11,7 @@
     </td>
     <td>
         <input 
+        :style="{'border-color': !handleAmount() ? '#e53935': '#ccc'}"
             placeholder="сумма долга"
             v-model="item.amount"
             @keypress="isNumber"
@@ -63,6 +64,9 @@ export default {
         }
     },
     methods: {
+        handleAmount() {
+            return this.item.amount !== ''
+        },
         isNumber(event) {
             event = event ? event : window.event
             var charCode = (event.which) ? event.which : event.keyCode

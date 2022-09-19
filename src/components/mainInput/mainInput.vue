@@ -64,7 +64,7 @@
                             Вставить из буффера
                         </button>
                         <br />
-
+                        {{store.allDebts}}
                     </div>
                 </td>
                 <td class="cell">
@@ -91,17 +91,17 @@
                 </td>
                 <td class="cell">
                     <select v-model="store.mainForm.rate">
+                        <option value="0">По периодам действия ставки рефинансирования</option>\
                         <option value="1">Конец периода</option>
-                        <option value="2">По периодам действия ставки рефинансирования</option>
-                        <option value="3">День частичной оплаты</option>
-                        <option value="4">День подачи иска в суд (сегодня)</option>
-                        <option value="5">Указанную дату</option>
+                        <option value="2">День частичной оплаты</option>
+                        <option value="3">День подачи иска в суд (сегодня)</option>
+                        <option value="4">Указанную дату</option>
                     </select>
-                    <span v-if="store.mainForm.rate === '5'">
+                    <span v-if="store.mainForm.rate === '4'">
                         <dateInputVue 
                             style="margin-top: 1rem"
                             format="dd.MM.yyyy"
-                            @date-input="newValue => store.mainForm.providedDate = newValue" 
+                            @date-input="newValue => store.mainForm.exactDate = newValue" 
                         />
                     </span>
 
@@ -166,9 +166,9 @@
                 <td><strong>Метод расчёта</strong></td>
                 <td class="cell">
                     <select v-model="store.mainForm.method">
-                        <option value="1">1/300 на весь период к задолженностям, возникшим ранее 01.01.2016</option>
-                        <option value="2">1/300 только до 01.01.2016 и редакцию от 01.01.2016 после</option>
-                        <option value="3">Редакция от 01.01.2016 с первых дней задолженности</option>
+                        <option value="0">1/300 на весь период к задолженностям, возникшим ранее 01.01.2016</option>
+                        <option value="1">1/300 только до 01.01.2016 и редакцию от 01.01.2016 после</option>
+                        <option value="2">Редакция от 01.01.2016 с первых дней задолженности</option>
                     </select>
                 </td>
             </tr>
@@ -203,9 +203,9 @@
                     </div>
                 </td>
                 <td class="cell">
-                    <div class="row">
-                        <input type="checkbox" id="sign" v-model="store.mainForm.signWhilePrint" required
-                            style="width: 16px; height: 16px">&nbsp;&nbsp;Подпись сайта калькулятора расчёта при печати
+                    <div class="row" >
+                        <input type="checkbox" v-model="store.mainForm.signWhilePrint" style="min-height: auto;" required>&nbsp;&nbsp;
+                        Подпись сайта калькулятора расчёта при печати
                     </div>
                 </td>
             </tr>

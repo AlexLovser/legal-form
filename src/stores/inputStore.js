@@ -8,7 +8,7 @@ export const useInputStore = defineStore('inputStore', {
         const mainForm = {
             endDate: new Date(),
             rate: '1',
-            providedDate: '',
+            exactDate: '',
             method: '1',
             resultView: '0',
             signWhilePrint: true,
@@ -83,7 +83,7 @@ export const useInputStore = defineStore('inputStore', {
         addFile(newFile) {
             this.extractInformation(newFile).then(
                 parsed => {
-                    parsed = this.handleData(parsed.data.data)
+                    parsed = this.handleData(parsed.data.data);
 
                     for (let item of parsed.debts) {
                         item.id = uuidv4();
@@ -99,7 +99,7 @@ export const useInputStore = defineStore('inputStore', {
                             name: newFile.name,
                             ...parsed,
                         }
-                    )
+                    );
 
                     this.$emit(
                         'alert',
@@ -190,18 +190,23 @@ export const useInputStore = defineStore('inputStore', {
                 item => item.id !== id
             );
         },
+
+        addFileToList(name, items) {
+            return items.map(
+                item => {
+                    item.name = name;
+                    return item;
+                }
+            );
+        }
     },
     getters: {
         allDebts() {
             let initial = [];
 
+
             for (let elem of this.mainForm.imported) {
-                initial.push(...elem.debts.map(
-                    item => {
-                        item.file = elem.name;
-                        return item;
-                    }
-                ));
+                initial.push(...this.addFileToList(elem.name, elem.debts));
             }
             initial.push(...this.mainForm.debts);
 
@@ -234,12 +239,7 @@ export const useInputStore = defineStore('inputStore', {
             let initial = [...this.mainForm.payments];
 
             for (let elem of this.mainForm.imported) {
-                initial.push(...elem.payments.map(
-                    item => {
-                        item.file = elem.name;
-                        return item;
-                    }
-                ));
+                initial.push(...this.addFileToList(elem.name, elem.payments));
             }
 
             /* let bothCompleted = [];

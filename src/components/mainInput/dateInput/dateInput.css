@@ -1,6 +1,21 @@
 .dp-input {
     display: flex; 
-    width: 120px; 
+    width: 150px; 
     height: 100%; 
     margin: none;
+}
+
+
+.dp-error-input input {
+    display: flex; 
+    width: 150px; 
+    height: 100%; 
+    margin: none;
+    border: #e53935 2px solid;
+}
+
+.dp-error-input input:active,
+.dp-error-input input:focus {
+    transition: border 0.22s;
+    border: #e53935 2px solid;
 }

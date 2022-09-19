@@ -234,7 +234,12 @@ export const useInputStore = defineStore('inputStore', {
             let initial = [...this.mainForm.payments];
 
             for (let elem of this.mainForm.imported) {
-                initial.push(...elem.payments);
+                initial.push(...elem.payments.map(
+                    item => {
+                        item.file = elem.name;
+                        return item;
+                    }
+                ));
             }
 
             /* let bothCompleted = [];

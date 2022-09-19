@@ -79,9 +79,10 @@
     color: #e53935;
 }
 
-.form-control.invalid input {
-    border-color: #e53935;
+.form-control input .invalid {
+    border: 2px solid #e53935;
 }
+
 
 
 .form-control label {

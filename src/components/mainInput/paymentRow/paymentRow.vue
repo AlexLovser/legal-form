@@ -11,20 +11,25 @@
     </td>
     <td>
         <input 
-            :style="{'border-color': !handleAmount() ? '#e53935': '#ccc'}"
             placeholder="сумма долга"
             v-model="item.amount"
             @keypress="isNumber"
-            @keypress.enter="store.addDebt"
+            @keypress.enter="store.addPayment"
             required
         />
 
     </td>
-    
-    <td v-if="item.id === store.allDebts.at(-1).id" @click="store.addDebt">
+    <td>
+        <dateInputVue 
+            format="MM.yyyy"
+            @date-input="newValue => item.month = newValue" 
+        />
+
+    </td>
+    <td v-if="item.id === store.allPayments.at(-1).id" @click="store.addPayment">
         <unicon name="enter" fill="#3eaf7c"></unicon>
     </td>
-    <td v-else @click="store.deleteDebt(item.id)">
+    <td v-else @click="store.deletePayment(item.id)">
         <unicon name="trash-alt" fill="#e53935"></unicon>
     </td>
 
@@ -41,9 +46,8 @@
 import { useInputStore } from '@/stores/inputStore';
 import dateInputVue from '../dateInput/dateInput.vue';
 
-
 export default {
-    name: 'debtRow',
+    name: 'paymentRow',
     components: {
         dateInputVue,
     },
@@ -51,17 +55,14 @@ export default {
     setup(props) {
         const store = useInputStore();
         const mainForm = store.mainForm;
-        const item = mainForm.debts.find(el => el.id === props.id)
+        const item = mainForm.payments.find(el => el.id === props.id)
 
         return {
             item,
-            store,
+            store
         }
     },
     methods: {
-        handleAmount() {
-            return this.item.amount !== ''
-        },
         isNumber(event) {
             event = event ? event : window.event
             var charCode = (event.which) ? event.which : event.keyCode
@@ -72,9 +73,7 @@ export default {
             }
         },
 
-    },
-
-
+    }
 
 }
 

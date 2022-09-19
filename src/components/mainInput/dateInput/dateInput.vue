@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :class="!validDate() ? 'dp-error-input': null">
         <Datepicker 
             inputClassName="dp-input"
             menuClassName="dp-custom-menu"
@@ -12,7 +12,6 @@
             :noSecondsOverlay="true"
             :hideInputIcon="true"
             :monthPicker="format === 'MM.yyyy'"
-            :clearable="false"
             :minDate="new Date(2000, 1, 1, 0, 0, 0, 0)"
             :maxDate="new Date()"
             :format="format"
@@ -29,6 +28,9 @@
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import './dateInput.css';
+import moment from 'moment';
+
+
 export default {
     name: 'dateInput',
     props: [
@@ -41,6 +43,11 @@ export default {
       return {
         date: new Date()
       }
+    },
+    methods: {
+        validDate() {
+            return moment(this.date).isValid()
+        }
     },
     watch: {
         date(newOne) {

@@ -1,0 +1,11 @@
+.loading {
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+.animation {
+    height: 300px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}

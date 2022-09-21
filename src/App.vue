@@ -1,21 +1,22 @@
 <template>
     <div class="container center pt-5" v-cloak>
-        <div class="card center" >
+        <div class="card" style="padding: 3rem" >
             <mainInputVue 
                 @submit-form="startRequest"
                 @alert="onAlert"
             />
             
-            <div v-if="store.showAnimation" class="center">
+            <div v-if="store.showAnimation">
                 <loadingAnimationVue :step="step" />
             </div>
 
-            
-            <errorLabelVue v-else-if="store.serverError" :serverError="store.serverError"/>
-            <resultTableVue v-else-if="!store.responseRequested" 
+            <resultTableVue v-if="Object.keys(store.response).length !== 0" 
                 :show="show"
                 @alert="onAlert"
             />
+            
+            <errorLabelVue v-else-if="store.serverError" :serverError="store.serverError"/>
+            
             <transition name="slide-fade">
                 <div v-if="show" :class="['modal', 'alert', alertType]">
                     {{alertTitle}}
@@ -35,8 +36,8 @@ import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
 import errorLabelVue from './components/errorLabel/errorLabel.vue';
 
+import moment from 'moment';
 const axios = require('axios').default;
-
 
 
 export default {
@@ -59,10 +60,13 @@ export default {
         return {store: useMainStore()}
     },
     methods: {
-
+        sleep(milliseconds){
+            return new Promise(resolve => setTimeout(resolve, milliseconds))
+        },
         scrollToBottom() {
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
         },
+
         onAlert(data) {
             const {message, type} = data;
             this.alertTitle = message
@@ -74,9 +78,8 @@ export default {
             }, 3500)
         },
         
-        startRequest(receivedForm) {
+        async startRequest(receivedForm) {
             this.store.showAnimation = true;
-            setTimeout(this.scrollToBottom, 500)
 
             const request = {
                 "type": "0",
@@ -91,32 +94,54 @@ export default {
                 "custom_rate": 0,
             };
 
-            function padTo2Digits(num) {
-                return num.toString().padStart(2, '0');
+            const parseDate = date => {
+                date = new Date(moment(date).add(3, 'hours'))
+                return [
+                    date.getDate(), 
+                    date.getMonth() + 1, 
+                    date.getFullYear()
+                ]
             }
 
             const reformatDate = date => {
-                return [
-                    padTo2Digits(date.getDate()),
-                    padTo2Digits(date.getMonth() + 1),
-                    date.getFullYear(),
-                ].join('.')
+                const parsed = parseDate(date)
+                return parsed.join(".")
             }
 
+            const reformatMonth = date => {
+                const parsed = parseDate(date)
+                parsed[0] = '01'
+                if (parsed[1] < 10) {
+                    parsed[1] = '0' + String(parsed[1])
+                }
+                return parsed.join(".")
+            }
+        
             receivedForm.debts = receivedForm.debts.map(debt => {
                 debt.debt_start = reformatDate(debt.debt_start)
+                debt.start = debt.debt_start
                 debt.amount = Number(debt.amount)
+                debt.part = '1/1'
                 delete debt.id
+                delete debt.file
+
                 return debt
             })
+
             receivedForm.payments = receivedForm.payments.map(payment => {
                 payment.payment_date = reformatDate(payment.payment_date)
+                payment.date = payment.payment_date
                 payment.amount = Number(payment.amount)
+                payment.part = '1/1'
+                payment.pay_for = reformatMonth(payment.pay_for)
                 delete payment.id
+                delete payment.file
+
                 return payment
             })
 
             request.rate = Number(receivedForm.rate)
+            
             if (request.rate === '4') {
                 request.exact_date = reformatDate(receivedForm.exactDate)
             }
@@ -126,78 +151,62 @@ export default {
             request.method = Number(receivedForm.method)
             request.debts = receivedForm.debts
             request.payments = receivedForm.payments
+
+            await this.sleep(300)
+            this.scrollToBottom()
             
-
-            console.log(request)
-
-
-            /* 
-            this.countPenalties
-            .then(this.searchCourt)
-            .then(this.completeRequest)
-            .catch(
-                err => {
-                    this.serverError = Number(err.message)
-                }
-            )
-            .finally(
-                () => {
-                    this.showAnimation = false
-                    this.step = 5
-                }
-            ) */
+            try {
+                const counted = await this.countPenalties(request)
+                // counted.address = await this.searchCourt(receivedForm.address) ЗАДОЛБАЛО Я НЕ ЗНАЮ ОТКУДА МНЕ ВЗЯТЬ АДРИС!!!"
+                this.store.response = await this.completeRequest(counted)
+            } catch (err) {
+                this.serverError = 1
+            } finally {
+                this.scrollToBottom()
+                this.showAnimation = false
+                this.step = 5
+            }
         },
 
-        async countPenalties() {
+        async countPenalties(request) {
+            this.step ++
+            await this.sleep(1500)
             const response = await axios.post(
                 // 'http://37.46.132.129:7006/api/v1/',
                 'http://94.250.248.193:7006/api/v1/',
-                this.extractedData,
+                request,
                 { headers: { 'Content-Type': 'application/json' } }
-            ).catch(
-                () => {
-                    throw new Error('2')
-                }
             )
             if (response.data) {
                 delete response.data.result
-                this.store.response = response.data;
+                return response.data
             } else {
-                throw new Error('2')
+                throw new Error()
             }
         },
         
-        async searchCourt() {
+        async searchCourt(address) {
             this.step++
-            const address = this.address
-            if (address && address !== '') {
+            await this.sleep(1500)
+            if (address !== undefined && address !== '') {
                 const response = await axios.post(
                     'https://search.allcourts.ru/api/v1/by_address',
                     { address, parent: true, requisites: true },
                     { headers: { 'Content-Type': 'application/json' } }
                 )
-                .catch(
-                    () => {
-                        throw new Error('3')
-                    }
-                )
                 
-                this.store.response.address = response.data.data.address
+                return response.data.data.address
             }
         },
         
-        completeRequest() {
-            this.store.response = this.handleResponse(this.response);
-        },
-
-        handleResponse(response) {
-            this.step++
+        async completeRequest(response) {
+            this.step ++
+            await this.sleep(1500)
             const names = {
                 'total_debt_amount': 'Сумма задолженности',
                 'total_penalty': 'Сумма пеней',
                 'address': 'Адресс ближайшего суда'
             }
-
             const newResponse = {}
 
             for (let item of Object.entries(response)) {
@@ -205,13 +214,9 @@ export default {
             }
 
             return newResponse
-        }
-    },
+        },
 
-    computed: {
-        
     },
-
 
 }
 </script>

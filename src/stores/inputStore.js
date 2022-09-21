@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 const axios = require('axios').default;
+import moment from 'moment';
 
 
 export const useInputStore = defineStore('inputStore', {
     state: () => {
+        var timedifference = new Date().getTimezoneOffset();
+        
         const mainForm = {
             endDate: new Date(),
             rate: '1',
@@ -15,16 +18,16 @@ export const useInputStore = defineStore('inputStore', {
             debts: [
                 {
                     id: uuidv4(),
-                    debt_start: new Date(),
+                    debt_start: new Date(moment() + timedifference),
                     amount: ''
                 }
             ],
             payments: [
                 {
                     id: uuidv4(),
-                    payment_date: new Date(),
+                    payment_date: new Date(moment() + timedifference),
                     amount: '',
-                    month: ''
+                    pay_for: ''
                 }
             ],
             imported: [
@@ -33,6 +36,7 @@ export const useInputStore = defineStore('inputStore', {
 
         return {
             mainForm,
+            timedifference
         };
     },
     actions: {
@@ -68,7 +72,7 @@ export const useInputStore = defineStore('inputStore', {
             this.mainForm.debts.push(
                 {
                     id: uuidv4(),
-                    debt_start: new Date(),
+                    debt_start: new Date(moment().add(3, 'hours')),
                     amount: ''
                 }
             );
@@ -80,92 +84,45 @@ export const useInputStore = defineStore('inputStore', {
             );
         },
 
-        addFile(newFile) {
-            this.extractInformation(newFile).then(
-                parsed => {
-                    parsed = this.handleData(parsed.data.data);
+        async addFile(newFile) {
+            let parsed = await this.extractInformation(newFile);
+            parsed = parsed.data.data;
+            const remakeDate = date => date.split('.').reverse().join('-');
 
-                    for (let item of parsed.debts) {
-                        item.id = uuidv4();
-                    }
-
-                    for (let item of parsed.payments) {
-                        item.id = uuidv4();
-                    }
-
-                    this.mainForm.imported.push(
-                        {
-                            id: uuidv4(),
-                            name: newFile.name,
-                            ...parsed,
-                        }
-                    );
-
-                    this.$emit(
-                        'alert',
-                        {
-                            message: `Данные из файла ${newFile.name} успешно импортированы!`,
-                            type: 'primary'
-                        }
-                    );
-                }
-            ).catch(
-                () => {
-                    this.$emit('alert', { message: 'Невалидный файл, попробуйте скачать образец ниже', type: 'danger' });
-                }
-            );
-
-
-        },
-
-        async extractInformation(file) {
-            const response = await axios.post(
-                'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
-                { file },
-                { headers: { 'Content-Type': 'multipart/form-data' } }
-            );
-            return response;
-
-        },
-
-        handleData(data) {
-            const request = {
-                "type": "0",
-                "correct_debt_dates": false,
-                "rate": 2,
-                "method": 2,
-                "stop": "01.08.2022",
-                "zero_penalty": true,
-                "zero_start": "03.04.2020",
-                "zero_stop": "01.01.2021",
-                "special_rate": true,
-                "custom_rate": 0,
-            };
-
-            let { debts, payments, address } = data;
-
-            this.address = address;
-
-            debts = debts.map(
+            parsed.debts = parsed.debts.map(
                 value => {
-                    value.debt_start = new Date(value.start);
+                    value.id = uuidv4();
+                    value.file = newFile.name;
+                    value.debt_start = new Date(moment(remakeDate(value.start)).add(3, 'hours'));
                     return value;
                 }
             );
 
-            payments = payments.map(
+            parsed.payments = parsed.payments.map(
                 value => {
-                    value.payment_date = new Date(value.payment_date);
+                    value.id = uuidv4();
+                    value.file = newFile.name;
+                    value.payment_date = new Date(moment(remakeDate(value.payment_date)).add(3, 'hours'));
                     value.part = '1/1';
                     return value;
                 }
             );
 
-            request.debts = debts;
-            request.payments = payments;
+            this.mainForm.imported.push(
+                {
+                    id: uuidv4(),
+                    name: newFile.name,
+                    ...parsed,
+                }
+            );
+        },
 
-            return request;
-
+        async extractInformation(file) {
+            return await axios.post(
+                'https://cabinet.sk-developer.ru/api/v1/dashboard/parse',
+                { file },
+                { headers: { 'Content-Type': 'multipart/form-data' } }
+            );
         },
 
         deleteFile(id) {
@@ -178,9 +135,9 @@ export const useInputStore = defineStore('inputStore', {
             this.mainForm.payments.push(
                 {
                     id: uuidv4(),
-                    payment_date: '',
+                    payment_date: new Date(moment().add(3, 'hours')),
                     amount: '',
-                    month: ''
+                    pay_for: ''
                 }
             );
         },
@@ -190,15 +147,26 @@ export const useInputStore = defineStore('inputStore', {
                 item => item.id !== id
             );
         },
-
-        addFileToList(name, items) {
-            return items.map(
-                item => {
-                    item.name = name;
-                    return item;
+        isNumber(event, amount) {
+            let value = event.key;
+            if (isNaN(value) && value !== '.' && value !== '-') {
+                event.preventDefault();
+            } else if (value === '.') {
+                if (String(amount).indexOf('.') > -1) {
+                    event.preventDefault();
+                } else if (amount.length == 0) {
+                    event.preventDefault();
+                } else if (amount.length == 1 && amount[0] === '-') {
+                    event.preventDefault();
                 }
-            );
-        }
+            } else if (value === '-' && amount.length !== 0) {
+                event.preventDefault();
+            } else {
+                return true;
+            }
+
+        },
+
     },
     getters: {
         allDebts() {
@@ -206,7 +174,7 @@ export const useInputStore = defineStore('inputStore', {
 
 
             for (let elem of this.mainForm.imported) {
-                initial.push(...this.addFileToList(elem.name, elem.debts));
+                initial.push(...elem.debts);
             }
             initial.push(...this.mainForm.debts);
 
@@ -239,7 +207,7 @@ export const useInputStore = defineStore('inputStore', {
             let initial = [...this.mainForm.payments];
 
             for (let elem of this.mainForm.imported) {
-                initial.push(...this.addFileToList(elem.name, elem.payments));
+                initial.push(...elem.payments);
             }
 
             /* let bothCompleted = [];

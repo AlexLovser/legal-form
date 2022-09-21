@@ -1,12 +1,6 @@
 
-.plain {
-    color: #8c8989;
-    font-size: 13px;
-}
 
 .form-control {
-    position: relative;
-    padding: 3rem;
     margin-bottom: 0.5rem;
 }
 .fixedheight {
@@ -102,33 +96,13 @@
 }
 
 
-.file-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    transition: .22s all;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    border-radius: 10px;
-    border: #42b983 2px solid;
-    background: #42b983;
-    color: #fff;
-    box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
-    margin-right: 1rem;
-}
-
 .final-buttons-field {
     display: flex;
     width: 100%;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
+    margin-bottom: 2rem;
 }
 
 .title {

@@ -1,24 +1,37 @@
 <template>
-<div class="loading" v-cloak>
-    <transition appear v-for="i in 5" @appear="el => startAnim(el, i-1)" :key="i" >
-        <div :class="['btn', i == 1 ? 'primary' : 'default']"></div>
-    </transition>
-</div>
-<h3>{{possibleTitles[step]}}...</h3>
+    <div class="row center loading">
+        <div class="row animation" v-cloak>
+            <transition appear v-for="i in 5" @appear="el => startAnim(el, i-1)" :key="i" >
+                <div :class="['btn', i == 1 ? 'primary' : 'default']"></div>
+            </transition>
+        </div>
+        <h3>{{possibleTitles[step]}}...</h3>
+        <hr class="plain" style="width: 100%">
+    </div>
 </template>
 
 <script>
-
+import { useMainStore } from '@/stores/mainStore';
 import gsap from 'gsap';
-
+import { watch } from 'vue';
+import './loadingAnimation.css';
 
 export default {
     name: 'loadingAnimation',
     props: ['step'],
-    data: () => ({
-        possibleTitles: ['Extracting data', 'Counting', 'Searching the court', 'Creating response'],
-        loops: []
-    }),
+    setup() {
+        const store = useMainStore()
+        watch(store.response, newOne => {
+            if (Object.keys(newOne).length > 0) {
+                this.finishAnim()
+            }
+        })
+
+        return {
+            possibleTitles: ['Extracting data', 'Counting', 'Searching the court', 'Creating response'],
+            loops: []
+        }
+    },
     methods: {
         startAnim(el, ind) {
             setTimeout(
@@ -42,11 +55,15 @@ export default {
                 }, ((ind % 2) ? 0.8 : 0) * 1000
             )
         },
+        finishAnim() {
+            for (let i of this.loops) {
+                i.kill()
+            }
+            this.loops = []
+        },
     },
     beforeUnmount() {
-        for (let i of this.loops) {
-            i.kill()
-        }
+        this.finishAnim()
     }
 }
 

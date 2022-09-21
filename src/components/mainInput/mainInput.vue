@@ -12,42 +12,7 @@
 
         <table class="fixedheight">
             <tr class="card mt-1">
-                <td class="column">
-                    <strong>Файлы [ {{store.mainForm.imported.length}} / 10 ]</strong>
-                    <div class="alert plain">
-                        <br />
-                        Данные из файлов автоматически добавляются в форму. Удаляя файл вы удаляете его данные из формы
-                        <br />
-                        <br />
-                        <fileInput @fileInput="store.addFile" :disabled="store.mainForm.imported.length === 10" />
-                        <br />
-                        <br />
-                        <span class="row">
-                            <unicon name="file-check" fill="#42b983" height="30" width="30" style="margin-right: 1rem"></unicon> 
-                            <span>Значок обозначает, что данная запись была добавлена из файла</span>
-                        </span> 
-                        <br>
-                    </div>
-                </td>
-                <td class="cell">
-                    <ul class="row" style="list-style-type: none" v-if="store.mainForm.imported.length !== 0">
-                        <li v-for="file in store.mainForm.imported" :key="file.id" class="row">
-                            <button class="file-item" style="min-width: 350px">
-                                {{file.name}}
-                                <unicon name="file-check" fill="#fff" height="30" width="30" style="margin-right: 1rem"></unicon> 
-                            </button>
-                            <button class="file-item" style="background: #e53935; border-color: #e53935;"
-                                @click="deleteFile(file.id)">
-                                <unicon name="times" fill="#fff"></unicon>
-                            </button>
-                        </li>
-                    </ul>
-                    <span v-else class="plain center row">
-                        <unicon name="file-slash" fill="#8c8989" height="50" width="50" style="margin-bottom: 1rem">
-                        </unicon> Вы еще не добавили ни одного файла...
-                    </span>
-
-                </td>
+                <fileInput />
             </tr>
 
             <tr class="card mt-1">
@@ -101,6 +66,7 @@
                         <dateInputVue 
                             style="margin-top: 1rem"
                             format="dd.MM.yyyy"
+                            :initialDate="new Date()"
                             @date-input="newValue => store.mainForm.exactDate = newValue" 
                         />
                     </span>
@@ -121,6 +87,7 @@
                 <td class="row cell">
                     <dateInputVue 
                         format="dd.MM.yyyy"
+                        :initialDate="new Date()"
                         @date-input="newValue => store.mainForm.endDate = newValue" 
                     />
                 </td>
@@ -222,6 +189,7 @@
                 Очистить
             </button>
         </div>
+        <hr class="plain">
     </div>
 </template>
 
@@ -252,19 +220,73 @@ export default {
     },
 
     methods: {
-        submitForm() {
-            const myForm = { ...this.store.mainForm }
+        async handleAddFile(newFile) {
+            try {
+                await this.store.addFile(newFile);
+                console.log(111)
+                this.$emit(
+                    'alert',
+                    {
+                        message: `Данные из файла ${newFile.name} успешно импортированы!`,
+                        type: 'primary'
+                    }
+                );
+                console.log(222)
+            }
+            catch {
+                this.$emit('alert', { message: 'Невалидный файл, попробуйте скачать образец ниже', type: 'danger' })
+            }
+            
 
-            myForm.debts = this.store.allDebts
-            myForm.payments = this.store.allPayments
+        },
+        deepClone(value) {
+            return JSON.parse(JSON.stringify(value))
+        },
+        submitForm() {
+            const myForm = this.deepClone(this.store.mainForm)
+            myForm.debts = this.deepClone(this.store.allDebts)
+            myForm.payments = this.deepClone(this.store.allPayments)
+
+            let address = ''
+            for (let file of myForm.imported) {
+                if (file.address !== '' && file.address !== undefined) {
+                    address = file.address
+                    break
+                }
+            }
+            myForm.address = address
+
+
+            for (let index in myForm.debts) {
+                let debt = myForm.debts[index]
+                if (debt.debt_start === '' || debt.amount === '') {
+                    index ++
+                    this.$emit('alert', {
+                        message: `Вы не заполнили до конца задолженность номер ${index}`,
+                        type: 'danger',
+                    })
+                    return
+                }
+            }
+            
+            for (let index in myForm.payments) {
+                let payment = myForm.payments[index]
+                if (payment.payment_date === '' || payment.amount === '') {
+                    index ++
+                    this.$emit('alert', {
+                        message: `Вы не заполнили до конца оплату номер ${index}`,
+                        type: 'danger',
+                    })
+                    return
+                }
+
+            }
+
             this.$emit(
                 'submitForm',
                 myForm
             )
         },
-
-
-
     },
     computed: {
         isDisabled() {

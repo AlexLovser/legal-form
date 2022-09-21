@@ -5,6 +5,7 @@
     <td>
         <dateInputVue 
             format="dd.MM.yyyy"
+            :initialDate="item.debt_start"
             @date-input="newValue => item.debt_start = newValue" 
         />
 
@@ -50,8 +51,7 @@ export default {
     props: ['index', 'id'],
     setup(props) {
         const store = useInputStore();
-        const mainForm = store.mainForm;
-        const item = mainForm.debts.find(el => el.id === props.id)
+        const item = store.allDebts.find(el => el.id === props.id)
 
         return {
             item,
@@ -60,22 +60,19 @@ export default {
     },
     methods: {
         handleAmount() {
-            return this.item.amount !== ''
+            return !isNaN(this.item.amount) && this.item.amount !== ''
         },
         isNumber(event) {
-            event = event ? event : window.event
-            var charCode = (event.which) ? event.which : event.keyCode
-            if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
-                event.preventDefault();
-            } else {
-                return true;
+            const isNumber = this.store.isNumber(event, this.item.amount)
+            if (isNumber) { 
+                return isNumber
             }
-        },
+        }
 
     },
-
-
-
 }
+
+
+
 
 </script>

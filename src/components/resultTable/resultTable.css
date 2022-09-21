@@ -14,3 +14,29 @@
 .copy-icon:hover {
     opacity: 0.5;
 }
+.result-field {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 10rem;
+    margin-left: 3rem;
+    margin-right: 3rem;
+    border-left-width: .5rem;
+    border-left-style: solid;
+    border-bottom-right-radius: 2px;
+    border-top-right-radius: 2px;
+    padding: 3rem;
+}
+
+.result-field table {
+    margin-bottom: 2rem;
+    table-layout: fixed;
+    border-collapse: separate;
+}
+
+
+.result-field td {
+    vertical-align: top;
+    border: #929292 solid 2px;
+    width: 250px;
+}

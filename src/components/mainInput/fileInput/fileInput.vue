@@ -1,6 +1,6 @@
 <template>
     
-    <td class="column">
+    <div class="input-left">
         <strong>Файлы [ {{store.mainForm.imported.length}} / 10 ]</strong>
         
         <div class="alert plain">
@@ -45,13 +45,13 @@
             </span> 
             <br>
         </div>
-    </td>
+    </div>
 
-    <td class="cell">
+    <div class="input-right" style="justify-content: flex-top">
         <ul 
             class="row" 
             style="list-style-type: none" 
-            v-if="store.mainForm.imported.length !== 0"
+            v-if="!noFilesLoaded"
         >
             <li v-for="file in store.mainForm.imported" :key="file.id" class="row">
                 <button class="file-item" style="min-width: 350px">
@@ -77,11 +77,12 @@
             </li>
         </ul>
 
-        <span v-else class="plain center row">
+        <span v-else class="plain file-container"  style="justify-content: center">
             <unicon name="file-slash" fill="#8c8989" height="50" width="50" style="margin-bottom: 1rem">
-            </unicon> Вы еще не добавили ни одного файла...
+            </unicon>
+            Вы еще не добавили ни одного файла...
         </span>
-    </td>
+    </div>
    
 </template>
 
@@ -117,6 +118,10 @@ export default {
                 
             }
             
+        }
+    }, computed: {
+        noFilesLoaded() {
+            return this.store.mainForm.imported.length === 0
         }
     }
 }

@@ -3,20 +3,19 @@
         <span class="plain">
             Расчёт пени по коммунальным платежам (155 ЖК РФ)
         </span>
-        <div class="card alert plain row title">
+        <div class="card alert primary row title">
             <h2>
                 Введите параметры задолженности
             </h2>
-
         </div>
 
-        <table class="fixedheight">
-            <tr class="card mt-1">
+        <div>
+            <div class="input-row">
                 <fileInput />
-            </tr>
+            </div>
 
-            <tr class="card mt-1">
-                <td class="column">
+           <div class="input-row">
+                <div class="input-left">
                     <strong>Задолженности [ {{store.allDebts.length}} ]</strong>
                     <div class="alert plain warning"><br />Обычно ежемесячные платежи<br /><br /></div>
                     <div class="alert plain">
@@ -29,32 +28,32 @@
                             Вставить из буффера
                         </button>
                         <br />
-                        {{store.allDebts}}
                     </div>
-                </td>
-                <td class="cell">
+                </div>
+                <div class="input-right">
                     <div class="row">
-                        <table class="inner-table">
-                            <tr>
-                                <td></td>
-                                <td class="plain">Начало просрочки</td>
-                                <td class="plain">Сумма</td>
-                                <td class="plain"></td>
-
-                            </tr>
-                            <tr v-for="item, index in store.allDebts" :key="item.id">
-                                <debtRowVue :id="item.id" :index="index"/>
-                            </tr>
-                        </table>
+                        <div style="width: 42px; margin-right: 3px;"></div>
+                        <div class="plain input-head-section">Начало просрочки</div>
+                        <div class="plain input-head-section">Сумма</div>
+                        <div class="plain input-head-section"></div>
                     </div>
-                </td>
-            </tr>
+                    <div 
+                        v-for="item, index in store.allDebts" 
+                        :key="item.id" 
+                        class="row"
+                        style="margin-bottom: 3px"
+                    >
+                        <debtRowVue :id="item.id" :index="index"/>
+                    </div>
 
-            <tr class="card mt-1">
-                <td class="column">
+                </div>
+           </div>
+
+           <div class="input-row">
+                <div class="input-left">
                     <strong>Процентная ставка</strong>
-                </td>
-                <td class="cell">
+                </div>
+                <div class="input-right">
                     <select v-model="store.mainForm.rate">
                         <option value="0">По периодам действия ставки рефинансирования</option>\
                         <option value="1">Конец периода</option>
@@ -62,20 +61,19 @@
                         <option value="3">День подачи иска в суд (сегодня)</option>
                         <option value="4">Указанную дату</option>
                     </select>
-                    <span v-if="store.mainForm.rate === '4'">
-                        <dateInputVue 
-                            style="margin-top: 1rem"
-                            format="dd.MM.yyyy"
-                            :initialDate="new Date()"
-                            @date-input="newValue => store.mainForm.exactDate = newValue" 
-                        />
-                    </span>
 
-                </td>
-            </tr>
+                    <dateInputVue 
+                        v-if="store.mainForm.rate === '4'"
+                        style="margin-top: 1rem; width: 150px;"
+                        format="dd.MM.yyyy"
+                        :initialDate="new Date()"
+                        @date-input="newValue => store.mainForm.exactDate = newValue" 
+                    />
+                </div>
+            </div>
 
-            <tr class="card mt-1">
-                <td>
+            <div class="input-row">
+                <div class="input-left">
                     <strong>Конечная дата</strong>
                     <div class="alert plain">
                         <br />
@@ -83,18 +81,21 @@
                         <br />
                         <br />
                     </div>
-                </td>
-                <td class="row cell">
-                    <dateInputVue 
-                        format="dd.MM.yyyy"
-                        :initialDate="new Date()"
-                        @date-input="newValue => store.mainForm.endDate = newValue" 
-                    />
-                </td>
-            </tr>
+                </div>
+                <div class="input-right">
+                    <div style="width: 170px">
+                        <dateInputVue 
+                            format="dd.MM.yyyy"
+                            :initialDate="new Date()"
+                            @date-input="newValue => store.mainForm.endDate = newValue" 
+                        />  
+                    </div>
+                    
+                </div>
+            </div>
 
-            <tr class="card mt-1">
-                <td class="column">
+            <div class="input-row">
+                <div class="input-left">
                     <strong>Частичная оплата задолженности [ {{store.allPayments.length}} ]</strong>
                     <div class="alert plain">
                         <br />
@@ -108,59 +109,67 @@
                         <br />
                         <br />
                     </div>
-                </td>
-                <td class="cell">
-                    <div class="row" style="align-items: center">
-                        <table>
-                            <tr>
-                                <td></td>
-                                <td class="plain">Дата оплаты</td>
-                                <td class="plain">Сумма</td>
-                                <td class="plain">Месяц (если указан)</td>
-                            </tr>
-
-                            <tr v-for="item, index in store.allPayments" :key="item.id">
-                                <paymentRow :id="item.id" :index="index"/>
-                            </tr>
-
-
-                        </table>
+                </div>
+                <div class="input-right">
+                    <div class="row">
+                        <div style="width: 42px; margin-right: 3px;"></div>
+                        <div class="plain input-head-section">Дата оплаты</div>
+                        <div class="plain input-head-section">Сумма</div>
+                        <div class="plain input-head-section">Месяц (если указан)</div>
                     </div>
-                </td>
-            </tr>
 
-            <tr class="card mt-1">
-                <td><strong>Метод расчёта</strong></td>
-                <td class="cell">
+                    <div 
+                        v-for="item, index in store.allPayments" 
+                        :key="item.id" 
+                        class="row"
+                        style="margin-bottom: 3px"
+                    >
+                        <paymentRow :id="item.id" :index="index"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-row">
+                <div class="input-left">
+                    <strong>Метод расчёта</strong>
+                </div>
+                <div class="input-right">
                     <select v-model="store.mainForm.method">
                         <option value="0">1/300 на весь период к задолженностям, возникшим ранее 01.01.2016</option>
                         <option value="1">1/300 только до 01.01.2016 и редакцию от 01.01.2016 после</option>
                         <option value="2">Редакция от 01.01.2016 с первых дней задолженности</option>
                     </select>
-                </td>
-            </tr>
+                </div>
+            </div>
 
-            <tr class="card mt-1">
-                <td><strong>Вид отчёта</strong></td>
-                <td class="cell">
-                    <table>
-                        <tr>
-                            <td style="display: flex; align-items: center">
-                                <input value="0" type="radio" name="resultView" v-model="store.mainForm.resultView" required>&nbsp;&nbsp;Обычный
-                            </td>
+            <div class="input-row">
+                <div class="input-left">
+                    <strong>Вид отчёта</strong>
+                </div>
+                <div class="input-right">
+                    <div class="radio-input-row">
+                        <input 
+                            value="0" 
+                            type="radio"
+                            name="resultView" 
+                            v-model="store.mainForm.resultView" 
+                            required
+                        > &nbsp;&nbsp;Обычный
+                    </div>
+                    <div class="radio-input-row">
+                        <input 
+                            value="1" 
+                            type="radio" 
+                            name="resultView" 
+                            v-model="store.mainForm.resultView" 
+                            required
+                        > &nbsp;&nbsp;Бухгалтерский
+                    </div>
+                </div>
+            </div>
 
-                        </tr>
-                        <tr>
-                            <td style="display: flex; align-items: center">
-                                <input value="1" type="radio" name="resultView" v-model="store.mainForm.resultView" required>&nbsp;&nbsp;Бухгалтерский
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr class="card mt-1">
-                <td>
+            <div class="input-row">
+                <div class="input-left">
                     <strong>Подпись при печати</strong>
                     <div class="alert plain">
                         <br />
@@ -168,28 +177,26 @@
                         <br />
                         <br />
                     </div>
-                </td>
-                <td class="cell">
-                    <div class="row" >
+                </div>
+                <div class="input-right">
+                    <div class="row checkbox-input" >
                         <input type="checkbox" v-model="store.mainForm.signWhilePrint" style="min-height: auto;" required>&nbsp;&nbsp;
                         Подпись сайта калькулятора расчёта при печати
                     </div>
-                </td>
-            </tr>
-        </table>
-        <br>
-        <hr class="plain" />
-        <div class="final-buttons-field">
-            <button class="btn primary row mt-1" @click="submitForm" :disabled="isDisabled">
-                <unicon name="bolt-alt" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                Рассчитать
-            </button>
-            <button class="btn danger mt-1" @click="store.clearForm">
-                <unicon name="redo" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                Очистить
-            </button>
+                </div>
+            </div>
+
+            <div class="final-buttons-field">
+                <button class="btn primary row mt-1" @click="submitForm" :disabled="isDisabled">
+                    <unicon name="bolt-alt" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
+                    Рассчитать
+                </button>
+                <button class="btn danger mt-1" @click="store.clearForm">
+                    <unicon name="redo" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
+                    Очистить
+                </button>
+            </div>
         </div>
-        <hr class="plain">
     </div>
 </template>
 
@@ -223,7 +230,6 @@ export default {
         async handleAddFile(newFile) {
             try {
                 await this.store.addFile(newFile);
-                console.log(111)
                 this.$emit(
                     'alert',
                     {
@@ -231,7 +237,6 @@ export default {
                         type: 'primary'
                     }
                 );
-                console.log(222)
             }
             catch {
                 this.$emit('alert', { message: 'Невалидный файл, попробуйте скачать образец ниже', type: 'danger' })

@@ -1,12 +1,11 @@
 <template>
-    <div class="row center loading">
+    <div class="row animation-field">
         <div class="row animation" v-cloak>
             <transition appear v-for="i in 5" @appear="el => startAnim(el, i-1)" :key="i" >
                 <div :class="['btn', i == 1 ? 'primary' : 'default']"></div>
             </transition>
         </div>
-        <h3>{{possibleTitles[step]}}...</h3>
-        <hr class="plain" style="width: 100%">
+        <strong>{{possibleTitles[step]}}...</strong>
     </div>
 </template>
 

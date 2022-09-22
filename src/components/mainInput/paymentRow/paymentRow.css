@@ -1,0 +1,15 @@
+.mr {
+    margin-right: 3px
+}
+
+.icon {
+    display: flex;
+    height: 42px;
+    width: 42px;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon:hover {
+    opacity: 0.5;
+}

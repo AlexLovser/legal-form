@@ -1,14 +1,12 @@
 <template>
-    <div class="container center pt-5" v-cloak>
+    <div class="container" v-cloak>
         <div class="card" style="padding: 3rem" >
             <mainInputVue 
                 @submit-form="startRequest"
                 @alert="onAlert"
             />
             
-            <div v-if="store.showAnimation">
-                <loadingAnimationVue :step="step" />
-            </div>
+            <loadingAnimationVue :step="step" v-if="store.showAnimation"/>
 
             <resultTableVue v-if="Object.keys(store.response).length !== 0" 
                 :show="show"

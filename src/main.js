@@ -11,7 +11,8 @@ import {
     uniTimes,
     uniPlus,
     uniFileSlash,
-    uniFileCheck
+    uniFileCheck,
+    uniCheck
 } from 'vue-unicons/dist/icons';
 import { createPinia } from 'pinia/dist/pinia';
 
@@ -27,7 +28,8 @@ Unicon.add([
     uniTimes, 
     uniPlus,
     uniFileSlash,
-    uniFileCheck
+    uniFileCheck,
+    uniCheck
 ]);
 
 const app = createApp(App);

@@ -4,9 +4,13 @@ import { defineStore } from 'pinia';
 export const useMainStore = defineStore('mainStore', {
     state: () => {
         return {
-            response: {},
+            response: {
+                'Сумма задолженности': 0,
+                'Сумма пеней': 0,
+                'Адресс ближайшего суда': 'Asdjhjasdknasdkjh'
+            },
             serverError: null,
-            showAnimation: false,
+            showAnimation: true,
             file: null,
         };
     },

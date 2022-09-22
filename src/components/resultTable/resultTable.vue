@@ -1,13 +1,27 @@
 <template>
-  <hr class="plain"/>
-    
-    <span class="card alert">
+    <div class="card alert result-field column">
         
-        <!-- <div class="copy-icon" @click="copy">
-         <unicon name="copy" fill="#929292" height="25" width="25" ></unicon>
+        <button class="btn primary copy-icon" @click="copy">
+         <unicon :name="showCopied ? 'check' : 'copy'" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon> 
+         {{ showCopied ? 'Copied!' : 'Copy'}}
+        </button>
+
+        <div class="row">
+          <div class="same-width column">
+            <div v-for="k of Object.keys(store.response)" :key="String(k)">
+              <strong>{{k}}</strong>
+            </div>
+
+          </div>
+          <div class="column same-width">
+            <div v-for="v of Object.values(store.response)" :key="String(v)">
+              {{v}}
+            </div>
+
+          </div>
         </div>
-        -->
-        <!-- <table v-cloak >
+       
+        <!-- <table >
             <tr v-for="k of Object.entries(store.response)" :key="k[0]">
               <span v-if="!k[1].toString().startsWith('http')">
                 <td><strong>{{k[0]}}</strong></td>
@@ -21,10 +35,7 @@
               </span>
             </tr>
           </table> -->
-
-        asdasd
-
-      </span>
+      </div>
 </template>
 
 <script>
@@ -34,15 +45,21 @@ import './resultTable.css';
 export default {
     name: 'resultTable',
     props: ['show'],
+    emits: ["alert"],
     setup() {
       const store = useMainStore()
       return {
-        store
+        store,
+        showCopied: false
       }
     },
 
     methods: {
         copy() {
+          this.showCopied = true
+          setTimeout(() => {
+            this.showCopied = false
+          }, 2000)
             let txt = '{\n'
             for (let item of Object.entries(this.store.response)) {
                 let [k, v] = item;

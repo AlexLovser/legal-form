@@ -1,6 +1,6 @@
 .dp-input {
     display: flex; 
-    width: 150px; 
+    width: 170px; 
     height: 100%; 
     margin: none;
 }
@@ -8,7 +8,7 @@
 
 .dp-error-input input {
     display: flex; 
-    width: 150px; 
+    width: 170px; 
     height: 100%; 
     margin: none;
     border: #e53935 2px solid;

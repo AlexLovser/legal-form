@@ -12,9 +12,7 @@
                 :show="show"
                 @alert="onAlert"
             />
-            
-            <errorLabelVue v-else-if="store.serverError" :serverError="store.serverError"/>
-            
+                        
             <transition name="slide-fade">
                 <div v-if="show" :class="['modal', 'alert', alertType]">
                     {{alertTitle}}
@@ -32,7 +30,6 @@ import { useMainStore } from './stores/mainStore';
 import loadingAnimationVue from '@/components/loadingAnimation/loadingAnimation.vue';
 import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
-import errorLabelVue from './components/errorLabel/errorLabel.vue';
 
 import moment from 'moment';
 const axios = require('axios').default;
@@ -44,7 +41,6 @@ export default {
         loadingAnimationVue,
         resultTableVue,
         mainInputVue,
-        errorLabelVue
     },
     data() {
         return {
@@ -161,7 +157,7 @@ export default {
                 this.serverError = 1
             } finally {
                 this.scrollToBottom()
-                this.showAnimation = false
+                this.store.showAnimation = false
                 this.step = 5
             }
         },

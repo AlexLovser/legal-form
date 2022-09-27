@@ -5,9 +5,9 @@
             menuClassName="dp-menu"
             calendarClassName="dp-calendar"
             calendarCellClassName="dp-calendar-cell"
-            :placeholder="!checkValue ? 'мм.гггг': 'дд.мм.гггг'"
+            :placeholder="monthPicker ? 'мм.гггг': 'дд.мм.гггг'"
             :hideInputIcon="true"
-            :monthPicker="!checkValue"
+            :monthPicker="monthPicker"
             :minDate="new Date(2000, 1, 1, 0, 0, 0, 0)"
             :format="format"
             :textInput="true"
@@ -41,14 +41,21 @@ export default {
         Datepicker
     },
     setup (props) {
+        const monthPicker = props.format == 'MM.yyyy'
+        let date
+        if (monthPicker) {
+            date = ref(moment(props.initialDate, props.format))
+        } else {
+            date = ref(new Date(moment(props.initialDate, props.format)))
+        }
         return {
-            checkValue: props.format !== 'MM.yyyy',
-            date: ref(new Date(moment(props.initialDate).add(3, 'hours'))),
+            monthPicker,
+            date,
         }
     },
     computed: {
         highlightDate() {
-            return !moment(this.date).isValid() && this.checkValue
+            return !moment(this.date, this.format).isValid()
         }
     },
     watch: {

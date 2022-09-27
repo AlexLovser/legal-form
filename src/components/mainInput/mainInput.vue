@@ -10,46 +10,30 @@
         </div>
 
         <div>
-            <div class="input-row">
+            <div class="input-field">
                 <fileInput />
             </div>
 
-           <div class="input-row">
+           <div class="input-field">
                 <div class="input-left">
                     <strong>Задолженности [ {{store.allDebts.length}} ]</strong>
                     <div class="alert plain warning"><br />Обычно ежемесячные платежи<br /><br /></div>
                     <div class="alert plain">
                         <br />
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
+                        <br>
                         <br />
-                        <br />
-                        <button class="btn primary row">
+                        <button class="btn primary row" @click="handlePasteDebt">
                             <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                            Вставить из буффера
+                            Вставить из буфера
                         </button>
                         <br />
                     </div>
                 </div>
-                <div class="input-right">
-                    <div class="row">
-                        <div style="width: 42px; margin-right: 3px;"></div>
-                        <div class="plain input-head-section">Начало просрочки</div>
-                        <div class="plain input-head-section">Сумма</div>
-                        <div class="plain input-head-section"></div>
-                    </div>
-                    <div 
-                        v-for="item, index in store.allDebts" 
-                        :key="item.id" 
-                        class="row"
-                        style="margin-bottom: 3px"
-                    >
-                        <debtRowVue :id="item.id" :index="index"/>
-                    </div>
-
-                </div>
+                <debtsVue />
            </div>
 
-           <div class="input-row">
+           <div class="input-field">
                 <div class="input-left">
                     <strong>Процентная ставка</strong>
                 </div>
@@ -72,7 +56,7 @@
                 </div>
             </div>
 
-            <div class="input-row">
+            <div class="input-field">
                 <div class="input-left">
                     <strong>Конечная дата</strong>
                     <div class="alert plain">
@@ -94,42 +78,26 @@
                 </div>
             </div>
 
-            <div class="input-row">
-                <div class="input-left">
+            <div class="input-field">
+                <div class="input-left" >
                     <strong>Частичная оплата задолженности [ {{store.allPayments.length}} ]</strong>
                     <div class="alert plain">
                         <br />
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
                         <br />
                         <br />
-                        <button class="btn primary row">
+                        <button class="btn primary row" @click="store.pastePaymentFromClipboard">
                             <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                            Вставить из буффера
+                            Вставить из буфера
                         </button>
                         <br />
                         <br />
                     </div>
                 </div>
-                <div class="input-right">
-                    <div class="row">
-                        <div style="width: 42px; margin-right: 3px;"></div>
-                        <div class="plain input-head-section">Дата оплаты</div>
-                        <div class="plain input-head-section">Сумма</div>
-                        <div class="plain input-head-section">Месяц (если указан)</div>
-                    </div>
-
-                    <div 
-                        v-for="item, index in store.allPayments" 
-                        :key="item.id" 
-                        class="row"
-                        style="margin-bottom: 3px"
-                    >
-                        <paymentRow :id="item.id" :index="index"/>
-                    </div>
-                </div>
+                <paymentsVue />
             </div>
 
-            <div class="input-row">
+            <div class="input-field">
                 <div class="input-left">
                     <strong>Метод расчёта</strong>
                 </div>
@@ -142,12 +110,12 @@
                 </div>
             </div>
 
-            <div class="input-row">
+            <div class="input-field">
                 <div class="input-left">
                     <strong>Вид отчёта</strong>
                 </div>
                 <div class="input-right">
-                    <div class="radio-input-row">
+                    <div class="radio-input-field">
                         <input 
                             value="0" 
                             type="radio"
@@ -156,7 +124,7 @@
                             required
                         > &nbsp;&nbsp;Обычный
                     </div>
-                    <div class="radio-input-row">
+                    <div class="radio-input-field">
                         <input 
                             value="1" 
                             type="radio" 
@@ -168,7 +136,7 @@
                 </div>
             </div>
 
-            <div class="input-row">
+            <div class="input-field">
                 <div class="input-left">
                     <strong>Подпись при печати</strong>
                     <div class="alert plain">
@@ -204,8 +172,10 @@
 import './mainInput.css';
 import fileInput from './fileInput/fileInput'
 import dateInputVue from './dateInput/dateInput.vue';
-import debtRowVue from './debtRow/debtRow.vue';
-import paymentRow from './paymentRow/paymentRow.vue';
+import paymentsVue from './payments/payments.vue';
+import debtsVue from './debts/debts.vue';
+
+
 import { useInputStore } from '@/stores/inputStore';
 
 
@@ -214,14 +184,14 @@ export default {
     components: {
         fileInput,
         dateInputVue,
-        debtRowVue,
-        paymentRow
+        paymentsVue,
+        debtsVue
     },
 
     setup() {
         const store = useInputStore();
         return {
-            store
+            store,
         };
 
     },
@@ -244,10 +214,44 @@ export default {
             
 
         },
+
+        pasteMixin(f) {
+            try {
+                f()
+                this.$emit('alert', {
+                    message: 'Данные из буфера обмена были успешно вставлены!',
+                    type: 'primary'
+                });
+            } catch {
+                this.$emit('alert', {
+                    message: 'Данные из буфера обмена были некорректны!',
+                    type: 'danger'
+                });
+            }
+        },
+
+        handlePasteDebt() {
+            navigator.clipboard.readText().then(
+                clipText => {
+                    this.pasteMixin(() => this.store.pasteDebtFromClipboard(clipText))
+                }
+            );
+           
+        },
+        handlePastePayment() {
+            navigator.clipboard.readText().then(
+                clipText => {
+                    this.pasteMixin(() => this.store.pastePaymentFromClipboard(clipText))
+                }
+            );
+        },
+        
         deepClone(value) {
             return JSON.parse(JSON.stringify(value))
         },
+        
         submitForm() {
+            
             const myForm = this.deepClone(this.store.mainForm)
             myForm.debts = this.deepClone(this.store.allDebts)
             myForm.payments = this.deepClone(this.store.allPayments)
@@ -276,7 +280,7 @@ export default {
             
             for (let index in myForm.payments) {
                 let payment = myForm.payments[index]
-                if (payment.payment_date === '' || payment.amount === '') {
+                if (payment.payment_date === '' || payment.amount === '' || payment.pay_for === '') {
                     index ++
                     this.$emit('alert', {
                         message: `Вы не заполнили до конца оплату номер ${index}`,
@@ -287,12 +291,15 @@ export default {
 
             }
 
+            this.store.mainForm.edited = false
+
             this.$emit(
                 'submitForm',
                 myForm
             )
         },
     },
+    
     computed: {
         isDisabled() {
             return !(
@@ -300,7 +307,8 @@ export default {
                 this.store.allPayments.length &&
                 this.store.mainForm.rate &&
                 this.store.mainForm.endDate &&
-                this.store.mainForm.method
+                this.store.mainForm.method &&
+                this.store.mainForm.edited
             )
         },
        

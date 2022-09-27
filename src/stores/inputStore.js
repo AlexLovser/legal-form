@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 const axios = require('axios').default;
 import moment from 'moment';
+import {fromClipboardFormat} from '../components/mainInput/parser/parser';
 
 
 export const useInputStore = defineStore('inputStore', {
@@ -9,29 +10,16 @@ export const useInputStore = defineStore('inputStore', {
         var timedifference = new Date().getTimezoneOffset();
         
         const mainForm = {
+            edited: true,
             endDate: new Date(),
             rate: '1',
             exactDate: '',
             method: '1',
             resultView: '0',
             signWhilePrint: true,
-            debts: [
-                {
-                    id: uuidv4(),
-                    debt_start: new Date(moment() + timedifference),
-                    amount: ''
-                }
-            ],
-            payments: [
-                {
-                    id: uuidv4(),
-                    payment_date: new Date(moment() + timedifference),
-                    amount: '',
-                    pay_for: ''
-                }
-            ],
-            imported: [
-            ]
+            debts: [],
+            payments: [],
+            imported: []
         };
 
         return {
@@ -39,52 +27,63 @@ export const useInputStore = defineStore('inputStore', {
             timedifference
         };
     },
+    
     actions: {
         clearForm() {
             this.mainForm = {
+                edited: true,
                 endDate: new Date(),
                 rate: '1',
                 providedDate: '',
                 method: '1',
                 resultView: '0',
                 signWhilePrint: true,
-                debts: [
-                    {
-                        id: uuidv4(),
-                        debt_start: new Date(),
-                        amount: ''
-                    }
-                ],
-                payments: [
-                    {
-                        id: uuidv4(),
-                        payment_date: new Date(),
-                        amount: '',
-                        month: ''
-                    }
-                ],
-                imported: [
-                ]
+                debts: [],
+                payments: [],
+                imported: []
             };
         },
         
-        addDebt() {
-            this.mainForm.debts.push(
-                {
+        addDebt(item) {
+            if (item === undefined) {
+                this.mainForm.debts.push({
                     id: uuidv4(),
-                    debt_start: new Date(moment().add(3, 'hours')),
-                    amount: ''
+                    debt_start: new Date(),
+                    amount: '',
+                });
+            } else {
+                let index = this.mainForm.debts.indexOf(item);
+                if (index === -1) {
+                    index = this.mainForm.debts.length;
                 }
-            );
+                this.mainForm.debts.splice(index + 1, 0, {
+                    id: uuidv4(),
+                    debt_start: new Date(),
+                    amount: '',
+                });
+            }
+
+
+            this.mainForm.edited = true;
+           
         },
 
-        deleteDebt(id) {
-            this.mainForm.debts = this.mainForm.debts.filter(
-                item => item.id !== id
-            );
+        deleteDebt(item) {
+            this.mainForm.edited = true;
+            const check = el => el.id !== item.id;
+            if (item.file !== undefined) {
+                for (let file of this.mainForm.imported) {
+                    file.debts = file.debts.filter(check);
+                }
+            } else {
+                this.mainForm.debts = this.mainForm.debts.filter(check);
+
+            }
+
         },
 
         async addFile(newFile) {
+            this.mainForm.edited = true;
             let parsed = await this.extractInformation(newFile);
             parsed = parsed.data.data;
             const remakeDate = date => date.split('.').reverse().join('-');
@@ -126,28 +125,75 @@ export const useInputStore = defineStore('inputStore', {
         },
 
         deleteFile(id) {
+            this.mainForm.edited = true;
             this.mainForm.imported = this.mainForm.imported.filter(
                 item => item.id !== id
             );
         },
 
-        addPayment() {
-            this.mainForm.payments.push(
-                {
+        addPayment(item) {
+            if (item === undefined) {
+                this.mainForm.payments.push({
                     id: uuidv4(),
-                    payment_date: new Date(moment().add(3, 'hours')),
+                    payment_date: new Date(),
                     amount: '',
-                    pay_for: ''
+                    pay_for: '',
+                });
+            } else {
+                let index = this.mainForm.payments.indexOf(item);
+                if (index === -1) {
+                    index = this.mainForm.payments.length;
                 }
-            );
+
+                this.mainForm.payments.splice(index + 1, 0, {
+                    id: uuidv4(),
+                    payment_date: new Date(),
+                    amount: '',
+                    pay_for: '',
+                });
+            }
+
+            this.mainForm.edited = true;
         },
 
-        deletePayment(id) {
-            this.mainForm.payments = this.mainForm.payments.filter(
-                item => item.id !== id
-            );
+        deletePayment(item) {
+            this.mainForm.edited = true;
+            const check = el => el.id !== item.id;
+            
+            if (item.file !== undefined) {
+                for (let file of this.mainForm.imported) {
+                    file.payments = file.payments.filter(check);
+                }
+            } else {
+                this.mainForm.payments = this.mainForm.payments.filter(check);
+
+            }
         },
+
+        pasteDebtFromClipboard(content) {
+            let parsed = fromClipboardFormat(content);
+            parsed = parsed.debts;
+            for (let item of parsed) {
+                item.id = uuidv4();
+            }
+            this.mainForm.debts.push(...parsed);
+        },
+
+        pastePaymentFromClipboard(content) {
+            let parsed = fromClipboardFormat(content);
+            parsed = parsed.debts;
+            for (let item of parsed) {
+                item.id = uuidv4();
+                item.pay_for = '';
+                item.payment_date = item.debt_start;
+                delete item.debt_start;
+
+            }
+            this.mainForm.payments.push(...parsed);
+        },  
+
         isNumber(event, amount) {
+            
             let value = event.key;
             if (isNaN(value) && value !== '.' && value !== '-') {
                 event.preventDefault();
@@ -162,6 +208,7 @@ export const useInputStore = defineStore('inputStore', {
             } else if (value === '-' && amount.length !== 0) {
                 event.preventDefault();
             } else {
+                this.mainForm.edited = true;
                 return true;
             }
 
@@ -204,11 +251,13 @@ export const useInputStore = defineStore('inputStore', {
         },
 
         allPayments() {
-            let initial = [...this.mainForm.payments];
+            let initial = [];
+
 
             for (let elem of this.mainForm.imported) {
                 initial.push(...elem.payments);
             }
+            initial.push(...this.mainForm.payments);
 
             /* let bothCompleted = [];
             let oneIsEmpty = [];

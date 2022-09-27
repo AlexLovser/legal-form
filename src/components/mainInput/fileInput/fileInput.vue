@@ -2,11 +2,15 @@
     
     <div class="input-left">
         <strong>Файлы [ {{store.mainForm.imported.length}} / 10 ]</strong>
-        
+
         <div class="alert plain">
             <br />
             Данные из файлов автоматически добавляются в форму. Удаляя файл вы удаляете его данные из формы
             <br />
+            <br />
+        </div>
+        
+        <div class="alert plain">
             <br />
 
             <div class="row">

@@ -15,6 +15,8 @@ import {
     uniCheck
 } from 'vue-unicons/dist/icons';
 import { createPinia } from 'pinia/dist/pinia';
+import VueClipboard from 'vue-clipboard2';
+
 
 const pinia = createPinia();
 	
@@ -34,8 +36,10 @@ Unicon.add([
 
 const app = createApp(App);
 
+VueClipboard.config.autoSetContainer = true;
 app.config.unwrapInjectedRef = true;
 app
 .use(Unicon)
 .use(pinia)
+.use(VueClipboard)
 .mount('#app');

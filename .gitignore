@@ -3,6 +3,8 @@
 /dist
 
 
+./LegalCalc_Express.dosx
+
 # local env files
 .env.local
 .env.*.local

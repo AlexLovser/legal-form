@@ -16,7 +16,7 @@
             placeholder="сумма долга"
             v-model="item.amount"
             @keypress="isNumber"
-            @keypress.enter="store.addPayment"
+            @keypress.enter="store.addPayment(item.id)"
             required
         />
 
@@ -30,18 +30,15 @@
 
     </div>
     
-    <div v-if="item.id === store.allPayments.at(-1).id" @click="store.addPayment" class="icon">
+    <div @click="store.addPayment(item)" class="icon">
         <unicon name="enter" fill="#3eaf7c"></unicon>
     </div>
-    <div v-else @click="store.deletePayment(item.id)" class="icon">
+    <div @click="store.deletePayment(item)" class="icon">
         <unicon name="trash-alt" fill="#e53935" height="30" width="30"></unicon>
     </div>
 
     <div v-if="item.file !== undefined" :title="item.file" class="icon">
-        <unicon name="file-check" fill="#42b983" height="30" width="30"></unicon> 
-    </div>
-    <div v-else>
-
+        <unicon name="file-check" fill="#42b983" height="27" width="27"></unicon> 
     </div>
 
 </template>
@@ -49,7 +46,8 @@
 
 <script>
 import { useInputStore } from '@/stores/inputStore';
-import dateInputVue from '../dateInput/dateInput.vue';
+import dateInputVue from '../../dateInput/dateInput';
+
 import './paymentRow.css';
 
 

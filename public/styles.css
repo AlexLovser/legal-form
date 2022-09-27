@@ -26,8 +26,13 @@ body {
     filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#3EAF7C", endColorstr="#2C3E50", GradientType=1 );
 }
 
+
 hr {
-    margin: 1rem 0;
+    border: none;
+    background-color: #8c8989;
+    color: #8c8989;
+    height: 1px;
+    width: 100%;
 }
 
 thead {
@@ -329,7 +334,7 @@ h3 {
 }
 
 
-.radio-input-row {
+.radio-input-field {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -337,7 +342,7 @@ h3 {
 }
     
 
-.radio-input-row input {
+.radio-input-field input {
     width: 20px;
     height: 20px;
 }

@@ -10,7 +10,15 @@
             :monthPicker="monthPicker"
             :minDate="new Date(2000, 1, 1, 0, 0, 0, 0)"
             :format="format"
+            :previewFormat="format"
             :textInput="true"
+            :textInputOptions="{
+                enterSubmit: true,
+                tabSubmit: true,
+                openMenu: true,
+                format: format,
+                rangeSeparator: '.',
+            }"
             :showNowButton="true"
             nowButtonLabel="Сейчас"
             v-model="date"
@@ -26,9 +34,8 @@
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import './dateInput.css';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import {ref} from 'vue';
-
 
 
 export default {
@@ -42,12 +49,27 @@ export default {
     },
     setup (props) {
         const monthPicker = props.format == 'MM.yyyy'
+        
         let date
-        if (monthPicker) {
-            date = ref(moment(props.initialDate, props.format))
-        } else {
-            date = ref(new Date(moment(props.initialDate, props.format)))
+        console.log(typeof props.initialDate)
+
+        switch (typeof props.initialDate) {
+            case String:
+                console.log(DateTime.fromISO(props.initialDate))
+                date = DateTime.fromISO(props.initialDate)
+                break
+
+            case Date:
+                console.log(DateTime.fromISO(props.initialDate))
+                date = DateTime.fromJSDate(props.initialDate)
+                break
+
+            default:
+                date = DateTime.now()
         }
+
+        date = ref(date.toISO())
+
         return {
             monthPicker,
             date,
@@ -55,12 +77,13 @@ export default {
     },
     computed: {
         highlightDate() {
-            return !moment(this.date, this.format).isValid()
+            return !this.monthPicker && DateTime.fromISO(this.date).invalid !== null
         }
     },
     watch: {
         date(newOne) {
-            this.$emit('dateInput', moment(newOne))
+            // newOne = DateTime.fromISO(newOne)
+            this.$emit('dateInput', newOne)
         }
     }
 }

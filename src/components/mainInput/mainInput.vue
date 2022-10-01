@@ -12,6 +12,7 @@
         <div>
             <div class="input-field">
                 <fileInput />
+                {{store.allDebts}}
             </div>
 
            <div class="input-field">
@@ -222,7 +223,8 @@ export default {
                     message: 'Данные из буфера обмена были успешно вставлены!',
                     type: 'primary'
                 });
-            } catch {
+            } catch (e) {
+                console.log(e)
                 this.$emit('alert', {
                     message: 'Данные из буфера обмена были некорректны!',
                     type: 'danger'
@@ -280,7 +282,7 @@ export default {
             
             for (let index in myForm.payments) {
                 let payment = myForm.payments[index]
-                if (payment.payment_date === '' || payment.amount === '' || payment.pay_for === '') {
+                if (payment.payment_date === '' || payment.amount === '') {
                     index ++
                     this.$emit('alert', {
                         message: `Вы не заполнили до конца оплату номер ${index}`,

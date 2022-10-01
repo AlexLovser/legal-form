@@ -30,8 +30,6 @@ import { useMainStore } from './stores/mainStore';
 import loadingAnimationVue from '@/components/loadingAnimation/loadingAnimation.vue';
 import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
-
-import moment from 'moment';
 const axios = require('axios').default;
 
 
@@ -89,7 +87,6 @@ export default {
             };
 
             const parseDate = date => {
-                date = new Date(moment(date).add(3, 'hours'))
                 return [
                     date.getDate(), 
                     date.getMonth() + 1, 
@@ -152,9 +149,9 @@ export default {
             try {
                 const counted = await this.countPenalties(request)
                 // counted.address = await this.searchCourt(receivedForm.address) ЗАДОЛБАЛО Я НЕ ЗНАЮ ОТКУДА МНЕ ВЗЯТЬ АДРИС!!!"
-                this.store.response = await this.completeRequest(counted)
-            } catch (err) {
-                this.serverError = 1
+                // this.store.response = await this.completeRequest(counted)
+                this.store.response = counted
+                console.log(counted)
             } finally {
                 this.scrollToBottom()
                 this.store.showAnimation = false
@@ -172,7 +169,6 @@ export default {
                 { headers: { 'Content-Type': 'application/json' } }
             )
             if (response.data) {
-                delete response.data.result
                 return response.data
             } else {
                 throw new Error()
@@ -193,22 +189,22 @@ export default {
             }
         },
         
-        async completeRequest(response) {
-            this.step ++
-            await this.sleep(1500)
-            const names = {
-                'total_debt_amount': 'Сумма задолженности',
-                'total_penalty': 'Сумма пеней',
-                'address': 'Адресс ближайшего суда'
-            }
-            const newResponse = {}
+        // async completeRequest(response) {
+        //     this.step ++
+        //     await this.sleep(1500)
+        //     const names = {
+        //         'total_debt_amount': 'Сумма задолженности',
+        //         'total_penalty': 'Сумма пеней',
+        //         'address': 'Адресс ближайшего суда'
+        //     }
+        //     const newResponse = {}
 
-            for (let item of Object.entries(response)) {
-                newResponse[names[item[0]]] = item[1]
-            }
+        //     for (let item of Object.entries(response)) {
+        //         newResponse[names[item[0]]] = item[1]
+        //     }
 
-            return newResponse
-        },
+        //     return newResponse
+        // },
 
     },
 

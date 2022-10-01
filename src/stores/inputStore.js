@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 const axios = require('axios').default;
-import moment from 'moment';
 import {fromClipboardFormat} from '../components/mainInput/parser/parser';
 
 
@@ -43,7 +42,10 @@ export const useInputStore = defineStore('inputStore', {
                 imported: []
             };
         },
-        
+
+        dateToISO(date) {
+            return date.split('.').reverse().join('-');
+        },
         addDebt(item) {
             if (item === undefined) {
                 this.mainForm.debts.push({
@@ -86,25 +88,24 @@ export const useInputStore = defineStore('inputStore', {
             this.mainForm.edited = true;
             let parsed = await this.extractInformation(newFile);
             parsed = parsed.data.data;
-            const remakeDate = date => date.split('.').reverse().join('-');
 
             parsed.debts = parsed.debts.map(
-                value => {
-                    value.id = uuidv4();
-                    value.file = newFile.name;
-                    value.debt_start = new Date(moment(remakeDate(value.start)).add(3, 'hours'));
-                    return value;
-                }
+                value => ({
+                    id: uuidv4(),
+                    file: newFile.name,
+                    debt_start: this.dateToISO(value.start),
+                    amount: value.amount,
+                })
             );
 
             parsed.payments = parsed.payments.map(
-                value => {
-                    value.id = uuidv4();
-                    value.file = newFile.name;
-                    value.payment_date = new Date(moment(remakeDate(value.payment_date)).add(3, 'hours'));
-                    value.part = '1/1';
-                    return value;
-                }
+                value => ({
+                    id: uuidv4(),
+                    file: newFile.name,
+                    payment_date: this.dateToISO(value.payment_date),
+                    amount: value.amount,
+                    part: '1/1'
+                })
             );
 
             this.mainForm.imported.push(
@@ -173,6 +174,9 @@ export const useInputStore = defineStore('inputStore', {
         pasteDebtFromClipboard(content) {
             let parsed = fromClipboardFormat(content);
             parsed = parsed.debts;
+            if (parsed.length == 0) {
+                throw new Error();
+            }
             for (let item of parsed) {
                 item.id = uuidv4();
             }
@@ -182,6 +186,9 @@ export const useInputStore = defineStore('inputStore', {
         pastePaymentFromClipboard(content) {
             let parsed = fromClipboardFormat(content);
             parsed = parsed.debts;
+            if (parsed.length == 0) {
+                throw new Error();
+            }
             for (let item of parsed) {
                 item.id = uuidv4();
                 item.pay_for = '';

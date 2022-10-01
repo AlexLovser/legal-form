@@ -2,15 +2,20 @@ import parseMoney from "parse-money";
 import { DateTime } from "luxon";
 
 
+
 function createDebt(start, amount) {
-    console.log(start);
+    console.log(DateTime.fromISO("2017-05"));
+    start = start.split('.');
+    start = [start[1], start[0], start[2]].join('.');
     return {
-        debt_start: start,
+        debt_start: new Date(start),
         amount: amount,
     };
 }
 
 function createPayment(start, amount) {
+    start = start.split('.');
+    start = [start[1], start[0], start[2]].join('.');
     return {
         payment_date: start,
         amount: amount,
@@ -18,7 +23,7 @@ function createPayment(start, amount) {
     };
 }
 
-export function parseDate(date) {
+function parseDate(date) {
     const formats = [
         'LLLL yyyy', 'LLLL yy', 'LLL yy', 'LLL yyyy', 'dd.MM.yyyy', 'dd.MM.yy',
         'LLLL.yyyy', 'LLLL.yy', 'LLL.yy', 'LLL.yyyy', 'MM.yyyy', 'MM.yy'

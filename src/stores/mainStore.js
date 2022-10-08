@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 export const useMainStore = defineStore('mainStore', {
     state: () => {
         return {
-            response: {x: 5},
+            response: {},
             showAnimation: false,
             file: null,
         };

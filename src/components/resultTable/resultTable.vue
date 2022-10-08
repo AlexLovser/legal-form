@@ -8,22 +8,15 @@
       </div>
         
         
-        <div class="table-field">
-          
-          <h3>Задолженности за 2022</h3>
-          <table class="tg">
-            <TablePart />
-          </table>
+        <div class="table-field"  v-for="item of store.response.result" :key="item.id">
 
-          <h3>Задолженности за 2022</h3>
+          <h3>Задолженность возникшая {{item.start}}</h3>
           <table class="tg">
-            <TablePart />
+            <TablePart :item="item"/>
           </table>
-
-          <strong>Сумма основного долга: 6 877 434,00 руб.</strong> 
-          <br>
-          <strong>Сумма пеней по всем задолженностям: 0,00 руб.</strong>
         </div>
+        <h3>Сумма основного долга: {{store.response.total_debt_amount}} руб.</h3> 
+        <h3>Сумма пеней по всем задолженностям: {{store.response.total_penalty}} руб.</h3>
        
       </div>
 </template>
@@ -54,25 +47,16 @@ export default {
           setTimeout(() => {
             this.showCopied = false
           }, 2000)
-            let txt = '{\n'
-            for (let item of Object.entries(this.store.response)) {
-                let [k, v] = item;
-                txt += `\t"${k}": "${v}",\n`
-            }
-            txt += '}'
-        
-            this.$copyText(txt).then(
-                e => {
-                    alert('Copied')
-                    console.log(e)
-                }, 
-                e => {
-                    alert('Can not copy')
-                    console.log(e)
-                }
-            )
+          let txt = '{\n'
+          for (let item of Object.entries(this.store.response)) {
+              let [k, v] = item;
+              txt += `\t"${k}": "${v}",\n`
+          }
+          txt += '}'
+      
+          this.$copyText(txt)
 
-            this.$emit('alert', {message: 'Результат скопирован в буфер обмена', type: 'primary'})
+          this.$emit('alert', {message: 'Результат скопирован в буфер обмена', type: 'primary'})
         }
     }
 }

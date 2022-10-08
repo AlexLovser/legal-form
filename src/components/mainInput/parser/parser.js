@@ -2,22 +2,20 @@ import parseMoney from "parse-money";
 import { DateTime } from "luxon";
 
 
+function toISO(date) {
+    return date.split('.').reverse().join('-');
+}
 
 function createDebt(start, amount) {
-    console.log(DateTime.fromISO("2017-05"));
-    start = start.split('.');
-    start = [start[1], start[0], start[2]].join('.');
     return {
-        debt_start: new Date(start),
+        debt_start: DateTime.fromISO(toISO(start)).toISO(),
         amount: amount,
     };
 }
 
 function createPayment(start, amount) {
-    start = start.split('.');
-    start = [start[1], start[0], start[2]].join('.');
     return {
-        payment_date: start,
+        payment_date: DateTime.fromISO(toISO(start)).toISO(),
         amount: amount,
         payment_for: '',
     };

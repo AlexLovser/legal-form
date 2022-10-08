@@ -12,7 +12,6 @@
         <div>
             <div class="input-field">
                 <fileInput />
-                {{store.allDebts}}
             </div>
 
            <div class="input-field">
@@ -87,7 +86,7 @@
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
                         <br />
                         <br />
-                        <button class="btn primary row" @click="store.pastePaymentFromClipboard">
+                        <button class="btn primary row" @click="handlePastePayment">
                             <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
                             Вставить из буфера
                         </button>
@@ -243,6 +242,7 @@ export default {
         handlePastePayment() {
             navigator.clipboard.readText().then(
                 clipText => {
+                    console.log(clipText)
                     this.pasteMixin(() => this.store.pastePaymentFromClipboard(clipText))
                 }
             );
@@ -306,7 +306,6 @@ export default {
         isDisabled() {
             return !(
                 this.store.allDebts.length &&
-                this.store.allPayments.length &&
                 this.store.mainForm.rate &&
                 this.store.mainForm.endDate &&
                 this.store.mainForm.method &&

@@ -32,6 +32,12 @@
     width: 100%;
 }
 
+
+tbody {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
 .tg td {
     border-color: rgba(0, 0, 0, 0.2) solid 1px;
     font-size: 14px;
@@ -61,4 +67,22 @@
     border: 1px solid #ccc;
     text-align: left;
     vertical-align: center
+}
+
+.period-row td {
+    background-color: rgba(255, 0, 50, 0.1);
+    transition: all .42s;
+}
+
+.period-row td:hover {
+    background-color: rgba(255, 0, 50, 0.2);
+}
+
+.payment-row td {
+    background-color: rgba(0, 255, 50, 0.1);
+    transition: all .42s;
+}
+
+.payment-row td:hover {
+    background-color: rgba(0, 255, 50, 0.2);
 }

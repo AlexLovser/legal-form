@@ -14,18 +14,32 @@
         <th class="cell">дней</th>
         </tr>
     </thead>
-    <tbody>
-        <tr>
-        <td class="cell">6 876 876,00</td>
-        <td class="cell">07.09.2022</td>
-        <td class="cell">24.09.2022</td>
-        <td class="cell">18</td>
-        <td class="cell">7,50 %</td>
-        <td class="cell">0</td>
-        <td class="cell">6 876 876,00 x 18 x 0 x 7.5%</td>
-        <td class="cell">0,00 р</td>
+
+    <tbody v-for="row, index in item.data" :key="String(index)">
+        <tr v-if="row.type == 'period'" class="period-row">
+            <td class="cell">{{row.amount}} руб.</td>
+            <td class="cell">{{row.start}}</td>
+            <td class="cell">{{row.stop}}</td>
+            <td class="cell">{{row.days}}</td>
+            <td class="cell">{{row.percent}}%</td>
+            <td class="cell">{{row.rate}}</td>
+            <td class="cell">{{row.amount}} x {{row.days}} x {{row.rate}} x {{row.percent}}%</td>
+            <td class="cell">{{row.penalty}} руб.</td>
+        </tr>
+        <tr v-else class="payment-row">
+            <td class="cell">-{{row.amount}} руб.</td>
+            <td class="cell">{{row.payment_date}}</td>
+            <td class="cell" colspan="6">Погашение части долга</td>
+
         </tr>
     </tbody>
+
+
+    <button class="file-item" style="margin-top: 1rem" @click="copyTotal">
+        Итого: {{item.penalty}} руб.
+    </button> 
+
+    
     <div style="height: 3rem"></div>
 
 </template>
@@ -36,6 +50,15 @@
 export default {
     name: 'tablePart',
     props: ['item'],
+    methods: {
+        copyTotal() {
+            this.$copyText(`${this.item.penalty} руб.`)
+            this.$parent.$emit('alert', {
+                message: 'Итог успешно скопирован!',
+                type: 'primary'
+            })
+        }
+    }
 }
 
 </script>

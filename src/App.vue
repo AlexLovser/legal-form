@@ -26,11 +26,12 @@
 
 <script>
 import { useMainStore } from './stores/mainStore';
-
+import { v4 as uuidv4 } from 'uuid';
 import loadingAnimationVue from '@/components/loadingAnimation/loadingAnimation.vue';
 import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
 const axios = require('axios').default;
+// import { DateTime } from "luxon";
 
 
 export default {
@@ -86,26 +87,9 @@ export default {
                 "custom_rate": 0,
             };
 
-            const parseDate = date => {
-                return [
-                    date.getDate(), 
-                    date.getMonth() + 1, 
-                    date.getFullYear()
-                ]
-            }
-
             const reformatDate = date => {
-                const parsed = parseDate(date)
-                return parsed.join(".")
-            }
-
-            const reformatMonth = date => {
-                const parsed = parseDate(date)
-                parsed[0] = '01'
-                if (parsed[1] < 10) {
-                    parsed[1] = '0' + String(parsed[1])
-                }
-                return parsed.join(".")
+                date = date.slice(0, date.indexOf('T'))
+                return date.split('-').reverse().join('.')
             }
         
             receivedForm.debts = receivedForm.debts.map(debt => {
@@ -124,7 +108,20 @@ export default {
                 payment.date = payment.payment_date
                 payment.amount = Number(payment.amount)
                 payment.part = '1/1'
-                payment.pay_for = reformatMonth(payment.pay_for)
+                if (payment.pay_for !== '') {
+                    let {month, year} = payment.pay_for
+                    month ++
+                    if (month < 10) {
+                        month = '0' + String(month)
+                    } else {
+                        month = String(month)
+                    }
+
+                    payment.pay_for = '01.' + month + '.' + year
+                } else {
+                    delete payment.pay_for
+                }
+                
                 delete payment.id
                 delete payment.file
 
@@ -142,16 +139,17 @@ export default {
             request.method = Number(receivedForm.method)
             request.debts = receivedForm.debts
             request.payments = receivedForm.payments
+            console.log('Request', request)
 
             await this.sleep(300)
             this.scrollToBottom()
             
             try {
                 const counted = await this.countPenalties(request)
+                console.log(counted)
                 // counted.address = await this.searchCourt(receivedForm.address) ЗАДОЛБАЛО Я НЕ ЗНАЮ ОТКУДА МНЕ ВЗЯТЬ АДРИС!!!"
                 // this.store.response = await this.completeRequest(counted)
                 this.store.response = counted
-                console.log(counted)
             } finally {
                 this.scrollToBottom()
                 this.store.showAnimation = false
@@ -169,6 +167,9 @@ export default {
                 { headers: { 'Content-Type': 'application/json' } }
             )
             if (response.data) {
+                for (let item of response.data.result) {
+                    item.id = uuidv4()
+                }   
                 return response.data
             } else {
                 throw new Error()
@@ -188,24 +189,6 @@ export default {
                 return response.data.data.address
             }
         },
-        
-        // async completeRequest(response) {
-        //     this.step ++
-        //     await this.sleep(1500)
-        //     const names = {
-        //         'total_debt_amount': 'Сумма задолженности',
-        //         'total_penalty': 'Сумма пеней',
-        //         'address': 'Адресс ближайшего суда'
-        //     }
-        //     const newResponse = {}
-
-        //     for (let item of Object.entries(response)) {
-        //         newResponse[names[item[0]]] = item[1]
-        //     }
-
-        //     return newResponse
-        // },
-
     },
 
 }

@@ -51,16 +51,12 @@ export default {
         const monthPicker = props.format == 'MM.yyyy'
         
         let date
-        console.log(typeof props.initialDate)
-
         switch (typeof props.initialDate) {
-            case String:
-                console.log(DateTime.fromISO(props.initialDate))
+            case 'string':
                 date = DateTime.fromISO(props.initialDate)
                 break
 
-            case Date:
-                console.log(DateTime.fromISO(props.initialDate))
+            case 'object':
                 date = DateTime.fromJSDate(props.initialDate)
                 break
 
@@ -82,7 +78,6 @@ export default {
     },
     watch: {
         date(newOne) {
-            // newOne = DateTime.fromISO(newOne)
             this.$emit('dateInput', newOne)
         }
     }

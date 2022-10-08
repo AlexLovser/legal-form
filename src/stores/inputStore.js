@@ -200,7 +200,6 @@ export const useInputStore = defineStore('inputStore', {
         },  
 
         isNumber(event, amount) {
-            
             let value = event.key;
             if (isNaN(value) && value !== '.' && value !== '-') {
                 event.preventDefault();

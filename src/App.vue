@@ -30,8 +30,9 @@ import { v4 as uuidv4 } from 'uuid';
 import loadingAnimationVue from '@/components/loadingAnimation/loadingAnimation.vue';
 import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
+import { DateTime } from 'luxon';
+
 const axios = require('axios').default;
-// import { DateTime } from "luxon";
 
 
 export default {
@@ -41,21 +42,20 @@ export default {
         resultTableVue,
         mainInputVue,
     },
-    data() {
+    setup() {
         return {
+            store: useMainStore(),
             show: false,
             alertTitle: '',
             alertType: '',
             step: 0
         }
     },
-    setup() {
-        return {store: useMainStore()}
-    },
     methods: {
         sleep(milliseconds){
             return new Promise(resolve => setTimeout(resolve, milliseconds))
         },
+
         scrollToBottom() {
             window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
         },
@@ -72,7 +72,9 @@ export default {
         },
         
         async startRequest(receivedForm) {
+            console.log(receivedForm)
             this.store.showAnimation = true;
+            this.store.response = {}
 
             const request = {
                 "type": "0",
@@ -88,8 +90,9 @@ export default {
             };
 
             const reformatDate = date => {
-                date = date.slice(0, date.indexOf('T'))
-                return date.split('-').reverse().join('.')
+                date = DateTime.fromISO(date)
+                date.plus({hour: 3})
+                return date.toFormat('dd.MM.yyyy')
             }
         
             receivedForm.debts = receivedForm.debts.map(debt => {

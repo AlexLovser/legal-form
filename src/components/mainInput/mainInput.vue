@@ -50,7 +50,7 @@
                         v-if="store.mainForm.rate === '4'"
                         style="margin-top: 1rem; width: 150px;"
                         format="dd.MM.yyyy"
-                        :initialDate="new Date()"
+                        :initialDate="now"
                         @date-input="newValue => store.mainForm.exactDate = newValue" 
                     />
                 </div>
@@ -70,7 +70,7 @@
                     <div style="width: 170px">
                         <dateInputVue 
                             format="dd.MM.yyyy"
-                            :initialDate="new Date()"
+                            :initialDate="now"
                             @date-input="newValue => store.mainForm.endDate = newValue" 
                         />  
                     </div>
@@ -174,7 +174,7 @@ import fileInput from './fileInput/fileInput'
 import dateInputVue from './dateInput/dateInput.vue';
 import paymentsVue from './payments/payments.vue';
 import debtsVue from './debts/debts.vue';
-
+import { DateTime } from "luxon";
 
 import { useInputStore } from '@/stores/inputStore';
 
@@ -192,6 +192,7 @@ export default {
         const store = useInputStore();
         return {
             store,
+            now: DateTime.now().toJSDate()
         };
 
     },
@@ -257,6 +258,7 @@ export default {
             const myForm = this.deepClone(this.store.mainForm)
             myForm.debts = this.deepClone(this.store.allDebts)
             myForm.payments = this.deepClone(this.store.allPayments)
+            console.log('Pre', myForm)
 
             let address = ''
             for (let file of myForm.imported) {
@@ -277,6 +279,7 @@ export default {
                         type: 'danger',
                     })
                     return
+                    
                 }
             }
             

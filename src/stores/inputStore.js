@@ -46,6 +46,7 @@ export const useInputStore = defineStore('inputStore', {
         dateToISO(date) {
             return date.split('.').reverse().join('-');
         },
+        
         addDebt(item) {
             if (item === undefined) {
                 this.mainForm.debts.push({

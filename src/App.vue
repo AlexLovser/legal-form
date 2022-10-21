@@ -72,7 +72,6 @@ export default {
         },
         
         async startRequest(receivedForm) {
-            console.log(receivedForm)
             this.store.showAnimation = true;
             this.store.response = {}
 
@@ -91,7 +90,7 @@ export default {
 
             const reformatDate = date => {
                 date = DateTime.fromISO(date)
-                date = date.plus({hour: 3})
+                date = date.plus({hour: 0})
                 return date.toFormat('dd.MM.yyyy')
             }
         
@@ -142,7 +141,6 @@ export default {
             request.method = Number(receivedForm.method)
             request.debts = receivedForm.debts
             request.payments = receivedForm.payments
-            console.log('Request', request)
 
             await this.sleep(300)
             this.scrollToBottom()

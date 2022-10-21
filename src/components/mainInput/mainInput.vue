@@ -5,14 +5,18 @@
             <h2>
                 Расчёт пени по коммунальным платежам (155 ЖК РФ)
             </h2>
-            
         </div>
 
         <div>
            <div class="input-field">
                 <div class="input-left">
                     <strong>Задолженности [ {{store.allDebts.length}} ]</strong>
-                    <div class="alert plain warning"><br />Обычно ежемесячные платежи<br /><br /></div>
+                    <div class="alert plain warning">
+                        <br />
+                        Обычно ежемесячные платежи
+                        <br />
+                        <br />
+                    </div>
                     <div class="alert plain">
                         <br />
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
@@ -27,6 +31,29 @@
                 </div>
                 <debtsVue />
            </div>
+
+           <div class="input-field">
+                <div class="input-left" >
+                    <strong>Частичная оплата задолженности [ {{store.allPayments.length}} ]</strong>
+                    <div class="alert plain">
+                        <br />
+                        Скопируйте нужные столбцы в Excel и нажмите на кнопку
+                        <br />
+                        <br />
+                        <button class="btn primary row" @click="paymentModalSwitch('open')">
+                            <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
+                            Вставить из буфера
+                        </button>
+                        <br />
+                        <br />
+                    </div>
+                </div>
+                <paymentsVue />
+            </div>
+
+            <div class="input-field">
+                <fileInput />
+            </div>
 
            <div class="input-field">
                 <div class="input-left">
@@ -74,25 +101,6 @@
             </div>
 
             <div class="input-field">
-                <div class="input-left" >
-                    <strong>Частичная оплата задолженности [ {{store.allPayments.length}} ]</strong>
-                    <div class="alert plain">
-                        <br />
-                        Скопируйте нужные столбцы в Excel и нажмите на кнопку
-                        <br />
-                        <br />
-                        <button class="btn primary row" @click="paymentModalSwitch('open')">
-                            <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                            Вставить из буфера
-                        </button>
-                        <br />
-                        <br />
-                    </div>
-                </div>
-                <paymentsVue />
-            </div>
-
-            <div class="input-field">
                 <div class="input-left">
                     <strong>Метод расчёта</strong>
                 </div>
@@ -132,10 +140,6 @@
             </div>
 
             <div class="input-field">
-                <fileInput />
-            </div>
-
-            <div class="input-field">
                 <div class="input-left">
                     <strong>Подпись при печати</strong>
                     <div class="alert plain">
@@ -164,9 +168,8 @@
                 </button>
             </div>
 
-
-            <modalInput v-if="showDebtModal" @saved="handlePasteDebt" for="debts" />
-            <modalInput v-if="showPaymentModal" @saved="handlePastePayment" for="payments" />
+            <modalInput @saved="handlePasteDebt" for="debts" :show="showDebtModal"/>
+            <modalInput @saved="handlePastePayment" for="payments" :show="showPaymentModal"/>
         </div>
     </div>
 </template>
@@ -179,12 +182,14 @@ import paymentsVue from './payments/payments.vue';
 import debtsVue from './debts/debts.vue';
 import modalInput from './modalInput/modalInput.vue';
 import { DateTime } from "luxon";
+import { ref } from 'vue';
 
 import { useInputStore } from '@/stores/inputStore';
 
 
 export default {
     name: 'mainInput',
+
     components: {
         fileInput,
         dateInputVue,
@@ -198,8 +203,8 @@ export default {
         return {
             store,
             now: DateTime.now().toJSDate(),
-            showDebtModal: false,
-            showPaymentModal: false,
+            showDebtModal: ref(false),
+            showPaymentModal: ref(false),
         };
 
     },
@@ -227,20 +232,18 @@ export default {
             try {
                 f()
                 this.$emit('alert', {
-                    message: 'Данные из буфера обмена были успешно вставлены!',
+                    message: 'Данные были успешно добавлены!',
                     type: 'primary'
                 });
             } catch (e) {
-                console.log(e)
                 this.$emit('alert', {
-                    message: 'Данные из буфера обмена были некорректны!',
+                    message: 'Данные были некорректны!',
                     type: 'danger'
                 });
             }
         },
 
         debtModalSwitch(to) {
-            console.log('Switched debt modal to', to === 'open')
             this.showDebtModal = to === 'open'
         },
 
@@ -251,8 +254,8 @@ export default {
         handlePasteDebt(text) {
             this.pasteMixin(() => this.store.pasteDebtFromClipboard(text))
             this.debtModalSwitch('close')
-           
         },
+
         handlePastePayment(text) {
             this.pasteMixin(() => this.store.pastePaymentFromClipboard(text))
             this.paymentModalSwitch('close')
@@ -267,7 +270,6 @@ export default {
             const myForm = this.deepClone(this.store.mainForm)
             myForm.debts = this.deepClone(this.store.allDebts)
             myForm.payments = this.deepClone(this.store.allPayments)
-            console.log('Pre', myForm)
 
             let address = ''
             for (let file of myForm.imported) {

@@ -1,12 +1,12 @@
 <template>
-    <div class="modal-mask">
+    <div class="modal-mask" v-if="show">
         <transition name="slide-fade">
             <div class="modal column">
                 <span class="plain mt-1">
                     Вставка "Дата" и "Число". 
                 </span>
                 <textarea class="modal-input mt-1" v-model="value"></textarea>
-                <button class="btn primary mt-1" @click="$emit('saved', value)">
+                <button class="btn primary mt-1" @click="handleSubmit">
                     Сохранить
                 </button>
             </div>
@@ -24,9 +24,8 @@ import { useMainStore } from '@/stores/mainStore';
 
 export default {
     name: 'modelInput',
-    props: ['for'],
+    props: ['for', 'show'],
     setup() {
-
         const value = ref('')
         const store = useMainStore()
        
@@ -36,7 +35,10 @@ export default {
         }
     },
     methods: {
-
+        handleSubmit() {
+            this.$emit('saved', this.value)
+            this.value = ''
+        }
     }
 }
 

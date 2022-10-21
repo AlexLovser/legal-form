@@ -91,7 +91,7 @@ export default {
 
             const reformatDate = date => {
                 date = DateTime.fromISO(date)
-                date.plus({hour: 3})
+                date = date.plus({hour: 3})
                 return date.toFormat('dd.MM.yyyy')
             }
         

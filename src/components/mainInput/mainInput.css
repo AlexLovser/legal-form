@@ -5,7 +5,7 @@
     width: 100%;
 }
 
-.form-control input {
+.form-control input, textarea {
     margin: 0;
     outline: none;
     border: 2px solid #ccc;
@@ -28,10 +28,17 @@
     width: max-content;
 }
 
+textarea {
+    resize: none;
+    max-width: 80%;
+}
+
 
 
 .form-control input:active,
-.form-control input:focus {
+.form-control input:focus
+.form-control textarea:active,
+.form-control textarea:focus {
     transition: border 0.22s;
     border: 2px solid #42b983;
 }

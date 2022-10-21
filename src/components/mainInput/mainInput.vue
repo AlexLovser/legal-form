@@ -1,19 +1,14 @@
 <template>
     <div class="form-control">
-        <span class="plain">
-            Расчёт пени по коммунальным платежам (155 ЖК РФ)
-        </span>
+        
         <div class="card alert primary row title">
             <h2>
-                Введите параметры задолженности
+                Расчёт пени по коммунальным платежам (155 ЖК РФ)
             </h2>
+            
         </div>
 
         <div>
-            <div class="input-field">
-                <fileInput />
-            </div>
-
            <div class="input-field">
                 <div class="input-left">
                     <strong>Задолженности [ {{store.allDebts.length}} ]</strong>
@@ -23,7 +18,7 @@
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
                         <br>
                         <br />
-                        <button class="btn primary row" @click="handlePasteDebt">
+                        <button class="btn primary row" @click="debtModalSwitch('open')">
                             <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
                             Вставить из буфера
                         </button>
@@ -86,7 +81,7 @@
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
                         <br />
                         <br />
-                        <button class="btn primary row" @click="handlePastePayment">
+                        <button class="btn primary row" @click="paymentModalSwitch('open')">
                             <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
                             Вставить из буфера
                         </button>
@@ -137,6 +132,10 @@
             </div>
 
             <div class="input-field">
+                <fileInput />
+            </div>
+
+            <div class="input-field">
                 <div class="input-left">
                     <strong>Подпись при печати</strong>
                     <div class="alert plain">
@@ -164,6 +163,10 @@
                     Очистить
                 </button>
             </div>
+
+
+            <modalInput v-if="showDebtModal" @saved="handlePasteDebt" for="debts" />
+            <modalInput v-if="showPaymentModal" @saved="handlePastePayment" for="payments" />
         </div>
     </div>
 </template>
@@ -174,6 +177,7 @@ import fileInput from './fileInput/fileInput'
 import dateInputVue from './dateInput/dateInput.vue';
 import paymentsVue from './payments/payments.vue';
 import debtsVue from './debts/debts.vue';
+import modalInput from './modalInput/modalInput.vue';
 import { DateTime } from "luxon";
 
 import { useInputStore } from '@/stores/inputStore';
@@ -185,14 +189,17 @@ export default {
         fileInput,
         dateInputVue,
         paymentsVue,
-        debtsVue
+        debtsVue,
+        modalInput
     },
 
     setup() {
         const store = useInputStore();
         return {
             store,
-            now: DateTime.now().toJSDate()
+            now: DateTime.now().toJSDate(),
+            showDebtModal: false,
+            showPaymentModal: false,
         };
 
     },
@@ -232,21 +239,23 @@ export default {
             }
         },
 
-        handlePasteDebt() {
-            navigator.clipboard.readText().then(
-                clipText => {
-                    this.pasteMixin(() => this.store.pasteDebtFromClipboard(clipText))
-                }
-            );
+        debtModalSwitch(to) {
+            console.log('Switched debt modal to', to === 'open')
+            this.showDebtModal = to === 'open'
+        },
+
+        paymentModalSwitch(to) {
+            this.showPaymentModal = to === 'open'
+        },
+
+        handlePasteDebt(text) {
+            this.pasteMixin(() => this.store.pasteDebtFromClipboard(text))
+            this.debtModalSwitch('close')
            
         },
-        handlePastePayment() {
-            navigator.clipboard.readText().then(
-                clipText => {
-                    console.log(clipText)
-                    this.pasteMixin(() => this.store.pastePaymentFromClipboard(clipText))
-                }
-            );
+        handlePastePayment(text) {
+            this.pasteMixin(() => this.store.pastePaymentFromClipboard(text))
+            this.paymentModalSwitch('close')
         },
         
         deepClone(value) {
@@ -303,6 +312,7 @@ export default {
                 myForm
             )
         },
+
     },
     
     computed: {

@@ -14,8 +14,8 @@ body {
     -moz-osx-font-smoothing: grayscale;
     font-size: 16px;
     color: #2c3e50;
-    /* background: #2c3e50; */
-    background: hsla(153, 48%, 46%, 1);
+    background: #fff;
+    /* background: hsla(153, 48%, 46%, 1);
 
     background: radial-gradient(circle, hsla(153, 48%, 46%, 1) 0%, hsla(210, 29%, 24%, 1) 80%);
 
@@ -23,7 +23,7 @@ body {
 
     background: -webkit-radial-gradient(circle, hsla(153, 48%, 46%, 1) 0%, hsla(210, 29%, 24%, 1) 80%);
 
-    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#3EAF7C", endColorstr="#2C3E50", GradientType=1 );
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#3EAF7C", endColorstr="#2C3E50", GradientType=1 ); */
 }
 
 
@@ -111,7 +111,7 @@ h3 {
     position: relative;
     place-content: center;
     place-items: center;
-    width: fit-content;
+    /* width: fit-content; */
     border-radius: 99px;
     letter-spacing: 0.05em;
     border: 1px solid #42b983;
@@ -173,10 +173,7 @@ h3 {
 .container {
     margin: 0 auto;
     width: 100%;
-    max-width: 1200px;
     min-width: 500;
-    margin-top: 5rem;
-    margin-bottom: 5rem;
 }
 
 

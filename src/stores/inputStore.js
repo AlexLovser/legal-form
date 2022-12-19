@@ -16,7 +16,13 @@ export const useInputStore = defineStore('inputStore', {
             method: '1',
             resultView: '0',
             signWhilePrint: true,
-            debts: [],
+            debts: [
+                {
+                    id: uuidv4(),
+                    debt_start: new Date(),
+                    amount: '',
+            }
+            ],
             payments: [],
             imported: []
         };

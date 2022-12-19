@@ -1,6 +1,6 @@
 <template>
-    <div class="container" v-cloak>
-        <div class="card" style="padding: 3rem" >
+    <div class="container" style="padding: 3rem" v-cloak>
+
             <mainInputVue 
                 @submit-form="startRequest"
                 @alert="onAlert"
@@ -19,7 +19,7 @@
                 </div>
             </transition>
 
-        </div>
+     
     </div>
 
 </template>
@@ -162,8 +162,9 @@ export default {
             this.step ++
             await this.sleep(1500)
             const response = await axios.post(
-                // 'http://37.46.132.129:7006/api/v1/',
-                'http://94.250.248.193:7006/api/v1/',
+                'http://37.46.132.129:7006/api/v1/',
+                //'http://94.250.248.193:7006/api/v1/',
+                // 'https://cabinet.sk-developer.ru/api/v1/computeapi',
                 request,
                 { headers: { 'Content-Type': 'application/json' } }
             )

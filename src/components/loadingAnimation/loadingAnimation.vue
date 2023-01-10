@@ -1,11 +1,11 @@
 <template>
     <div class="row animation-field">
         <div class="row animation" v-cloak>
-            <transition appear v-for="i in 5" @appear="el => startAnim(el, i-1)" :key="i" >
-                <div :class="['btn', i == 1 ? 'primary' : 'default']"></div>
+            <transition appear v-for="i in 4" @appear="el => startAnim(el, i-1)" :key="i" >
+                <div :class="['btn', i <= step ? 'primary' : 'default']"></div>
             </transition>
         </div>
-        <strong>{{possibleTitles[step]}}...</strong>
+        <strong>{{possibleTitles[step-1]}}...</strong>
     </div>
 </template>
 
@@ -37,7 +37,7 @@ export default {
                 () => {
                     this.loops.push(
                         gsap.to(el, {
-                            duration: 0.8,
+                            duration: 0.6,
                             height: 250,
                             repeat: -1,
                             yoyo: true,

@@ -11,7 +11,7 @@
     border: 2px solid #ccc;
     display: flex;
     color: #2c3e50;
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
     border-radius: 3px;
     font-size: 1rem;
 }
@@ -53,8 +53,8 @@ textarea {
     justify-content: center; 
     border: 2px solid #ccc;
     border-radius: 3px;
-    width: 42px;
-    height: 42px;
+    width: 33.6px;
+    height: 33.6px;
 }
 
 .input-head-section  {
@@ -70,8 +70,8 @@ textarea {
     justify-content: space-between;
     width: 100%;
     padding: 1rem;
-    border-radius: 10px;
-    box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+    /* border-radius: 10px; */
+    /* box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2); */
     margin-bottom: 1rem;
 }
 
@@ -85,8 +85,8 @@ textarea {
     display: flex;
     width: 67%;
     flex-direction: column;
-    max-height: 300px;
-    overflow-y: auto;
+    
+    overflow-y: visible;
     scrollbar-width: thin;
 }
 

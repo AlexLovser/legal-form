@@ -51,8 +51,9 @@ ul {
     line-height: 1.7;
 }
 input {
-    height: 41px;
+    height: 33.6px;
     width: 170px;
+    padding: 0.25rem 0.5rem;;
 }
 
 a {
@@ -224,7 +225,7 @@ h3 {
 }
 
 .card {
-    overflow: hidden;
+    overflow-x: hidden;
     /* padding: 1rem; */
     margin-bottom: 1rem;
     border-radius: 10px;

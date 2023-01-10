@@ -21,17 +21,14 @@
                     ref="fileInput"
                     accept=".xls"
                 />
-                <button class="btn primary row" 
+
+                <iconedButton   
+                    v-if="store.mainForm.imported.length !== 10"
                     @click="handlePress" 
-                    :disabled="store.mainForm.imported.length === 10">
-                    <unicon 
-                        name="plus" 
-                        fill="#fff" 
-                        height="25" 
-                        width="25" 
-                        style="margin-right: 1rem">
-                    </unicon> Добавить файл
-                </button>
+                    icon_name="plus" 
+                    color="primary"
+                    title="Добавить файл"
+                />
             </div>
             
             <br />
@@ -78,6 +75,7 @@
                     <unicon name="times" fill="#fff"></unicon>
 
                 </button>
+
             </li>
         </ul>
 
@@ -93,12 +91,14 @@
 
 <script>
 import { useInputStore } from "@/stores/inputStore";
+import iconedButton from '@/components/mainInput/iconed_button/iconedButton.vue';
 import "../mainInput.css";
 import './fileInput.css';
 
 
 export default {
     name: 'fileInput',
+    components: {iconedButton},
     setup() {
         const store = useInputStore()
         return {

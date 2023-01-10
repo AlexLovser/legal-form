@@ -31,7 +31,7 @@ import loadingAnimationVue from '@/components/loadingAnimation/loadingAnimation.
 import resultTableVue from '@/components/resultTable/resultTable.vue';
 import mainInputVue from '@/components/mainInput/mainInput.vue';
 import { DateTime } from 'luxon';
-
+import { ref } from 'vue';
 const axios = require('axios').default;
 
 
@@ -48,7 +48,7 @@ export default {
             show: false,
             alertTitle: '',
             alertType: '',
-            step: 0
+            step: ref(1)
         }
     },
     methods: {
@@ -147,7 +147,7 @@ export default {
             
             try {
                 const counted = await this.countPenalties(request)
-                console.log(counted)
+
                 // counted.address = await this.searchCourt(receivedForm.address) ЗАДОЛБАЛО Я НЕ ЗНАЮ ОТКУДА МНЕ ВЗЯТЬ АДРИС!!!"
                 // this.store.response = await this.completeRequest(counted)
                 this.store.response = counted
@@ -162,9 +162,9 @@ export default {
             this.step ++
             await this.sleep(1500)
             const response = await axios.post(
-                'http://37.46.132.129:7006/api/v1/',
+                // 'http://37.46.132.129:7006/api/v1/',
                 //'http://94.250.248.193:7006/api/v1/',
-                // 'https://cabinet.sk-developer.ru/api/v1/computeapi',
+                'https://cabinet.sk-developer.ru/api/v1/computeapi/',
                 request,
                 { headers: { 'Content-Type': 'application/json' } }
             )

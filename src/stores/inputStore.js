@@ -2,13 +2,12 @@ import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 const axios = require('axios').default;
 import {fromClipboardFormat} from '../components/mainInput/parser/parser';
-
+import { ref } from 'vue';
+import { useMainStore } from './mainStore';
 
 export const useInputStore = defineStore('inputStore', {
     state: () => {
-        var timedifference = new Date().getTimezoneOffset();
-        
-        const mainForm = {
+        const mainForm = ref({
             edited: true,
             endDate: new Date(),
             rate: '1',
@@ -25,11 +24,14 @@ export const useInputStore = defineStore('inputStore', {
             ],
             payments: [],
             imported: []
-        };
+        });
 
         return {
             mainForm,
-            timedifference
+            clearResponse: () => {
+                const s = useMainStore();
+                s.response = {}
+            }
         };
     },
     
@@ -39,7 +41,7 @@ export const useInputStore = defineStore('inputStore', {
                 edited: true,
                 endDate: new Date(),
                 rate: '1',
-                providedDate: '',
+                exactDate: '',
                 method: '1',
                 resultView: '0',
                 signWhilePrint: true,
@@ -47,6 +49,7 @@ export const useInputStore = defineStore('inputStore', {
                 payments: [],
                 imported: []
             };
+            this.clearResponse();
         },
 
         dateToISO(date) {

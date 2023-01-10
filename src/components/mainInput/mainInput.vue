@@ -1,11 +1,15 @@
 <template>
     <div class="form-control">
         
-        <div class="card alert primary row title">
+        <!-- <div class="card alert primary row title">
             <h2>
                 Расчёт пени по коммунальным платежам (155 ЖК РФ)
             </h2>
-        </div>
+        </div> -->
+        <h2 style="margin-left: 1rem">
+            Расчёт пени по коммунальным платежам (155 ЖК РФ)
+        </h2>
+        
 
         <div>
            <div class="input-field">
@@ -22,10 +26,14 @@
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
                         <br>
                         <br />
-                        <button class="btn primary row" @click="debtModalSwitch('open')">
-                            <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                            Вставить из буфера
-                        </button>
+
+                        <iconedButton   
+                            @click="debtModalSwitch('open')" 
+                            icon_name="copy" 
+                            color="primary"
+                            title="Вставить задолженности из буфера"
+                        />
+
                         <br />
                     </div>
                 </div>
@@ -40,10 +48,12 @@
                         Скопируйте нужные столбцы в Excel и нажмите на кнопку
                         <br />
                         <br />
-                        <button class="btn primary row" @click="paymentModalSwitch('open')">
-                            <unicon name="copy" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                            Вставить из буфера
-                        </button>
+                        <iconedButton   
+                            @click="paymentModalSwitch('open')" 
+                            icon_name="copy" 
+                            color="primary"
+                            title="Вставить начисления из буфера"
+                        />
                         <br />
                         <br />
                     </div>
@@ -158,14 +168,19 @@
             </div>
 
             <div class="final-buttons-field">
-                <button class="btn primary row mt-1" @click="submitForm" :disabled="isDisabled">
-                    <unicon name="bolt-alt" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                    Рассчитать
-                </button>
-                <button class="btn danger mt-1" @click="store.clearForm">
-                    <unicon name="redo" fill="#fff" height="25" width="25" style="margin-right: 1rem"></unicon>
-                    Очистить
-                </button>
+                <iconedButton   
+                    @click="submitForm" 
+                    icon_name="bolt-alt" 
+                    color="primary"
+                    title="Рассчитать"
+                />
+
+                <iconedButton   
+                    @click="store.clearForm" 
+                    icon_name="redo" 
+                    color="danger"
+                    title="Очистить"
+                />
             </div>
 
             <modalInput @saved="handlePasteDebt" for="debts" :show="showDebtModal"/>
@@ -181,6 +196,8 @@ import dateInputVue from './dateInput/dateInput.vue';
 import paymentsVue from './payments/payments.vue';
 import debtsVue from './debts/debts.vue';
 import modalInput from './modalInput/modalInput.vue';
+import iconedButton from './iconed_button/iconedButton.vue';
+
 import { DateTime } from "luxon";
 import { ref } from 'vue';
 
@@ -195,7 +212,8 @@ export default {
         dateInputVue,
         paymentsVue,
         debtsVue,
-        modalInput
+        modalInput,
+        iconedButton
     },
 
     setup() {
@@ -319,12 +337,14 @@ export default {
     
     computed: {
         isDisabled() {
+            const form = this.store.mainForm
             return !(
                 this.store.allDebts.length &&
-                this.store.mainForm.rate &&
-                this.store.mainForm.endDate &&
-                this.store.mainForm.method &&
-                this.store.mainForm.edited
+                form.rate !== '' &&
+                (Number(form.rate) < 4  ? !(form.exactDate in [null, undefined, '']) : true) &&
+                form.endDate !== undefined &&
+                form.method !== '' &&
+                form.edited
             )
         },
        

@@ -18,17 +18,12 @@
         
     </div>
     <div class="input-right" style="align-items: center; justify-content: center;" v-else>
-        <button
-            class="btn primary row" 
-                @click="store.addPayment()">
-            <unicon 
-                name="plus" 
-                fill="#fff" 
-                height="25" 
-                width="25" 
-                style="margin-right: 1rem">
-            </unicon> Добавить платеж
-        </button>
+        <iconedButton   
+            @click="store.addPayment()" 
+            icon_name="plus" 
+            color="primary"
+            title="Добавить платеж"
+        />
     </div>
 </template>
 
@@ -36,12 +31,13 @@
 <script>
 import { useInputStore } from '@/stores/inputStore';
 import paymentRow from './paymentRow/paymentRow.vue';
-
+import iconedButton from '../iconed_button/iconedButton.vue';
 
 export default {
     name: 'paymentsSection',
     components: {
         paymentRow,
+        iconedButton
     },
     setup() {
         const store = useInputStore()

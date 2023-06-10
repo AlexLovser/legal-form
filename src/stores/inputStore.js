@@ -15,14 +15,21 @@ export const useInputStore = defineStore('inputStore', {
             method: '1',
             resultView: '0',
             signWhilePrint: true,
-            debts: [
+            // debts: [
+            //     {
+            //         id: uuidv4(),
+            //         debt_start: new Date(),
+            //         amount: '',
+            //     }
+            // ],
+            // payments: [],
+            sequence: [
                 {
                     id: uuidv4(),
                     debt_start: new Date(),
                     amount: '',
-            }
+                }
             ],
-            payments: [],
             imported: []
         });
 
@@ -30,12 +37,31 @@ export const useInputStore = defineStore('inputStore', {
             mainForm,
             clearResponse: () => {
                 const s = useMainStore();
-                s.response = {}
+                s.response = {};
             }
         };
     },
     
     actions: {
+        objectIsDebt(obj) {
+            return obj.debt_start !== undefined;
+        },
+
+        separateToDebtsAndPayments(sequence) {
+            const debts = [];
+            const payments = [];
+
+            for (let item of sequence) {
+                if (this.objectIsDebt(item)) {
+                    debts.push(item);
+                } else {
+                    payments.push(item);
+                }
+            }
+
+            return { debts, payments };
+        },
+
         clearForm() {
             this.mainForm = {
                 edited: true,
@@ -45,9 +71,16 @@ export const useInputStore = defineStore('inputStore', {
                 method: '1',
                 resultView: '0',
                 signWhilePrint: true,
-                debts: [],
-                payments: [],
-                imported: []
+                // debts: [],
+                // payments: [],
+                imported: [],
+                sequence: [
+                    {
+                        id: uuidv4(),
+                        debt_start: new Date(),
+                        amount: '',
+                    }
+                ],
             };
             this.clearResponse();
         },
@@ -58,17 +91,34 @@ export const useInputStore = defineStore('inputStore', {
         
         addDebt(item) {
             if (item === undefined) {
-                this.mainForm.debts.push({
+                // this.mainForm.debts.push({
+                //     id: uuidv4(),
+                //     debt_start: new Date(),
+                //     amount: '',
+                // });
+
+                this.mainForm.sequence.push({
                     id: uuidv4(),
                     debt_start: new Date(),
                     amount: '',
                 });
             } else {
-                let index = this.mainForm.debts.indexOf(item);
+                // let index = this.mainForm.debts.indexOf(item);
+                // if (index === -1) {
+                //     index = this.mainForm.debts.length;
+                // }
+
+                let index = this.mainForm.sequence.indexOf(item);
                 if (index === -1) {
-                    index = this.mainForm.debts.length;
+                    index = this.mainForm.sequence.length;
                 }
-                this.mainForm.debts.splice(index + 1, 0, {
+                // this.mainForm.debts.splice(index + 1, 0, {
+                //     id: uuidv4(),
+                //     debt_start: new Date(),
+                //     amount: '',
+                // });
+
+                this.mainForm.sequence.splice(index + 1, 0, {
                     id: uuidv4(),
                     debt_start: new Date(),
                     amount: '',
@@ -88,7 +138,9 @@ export const useInputStore = defineStore('inputStore', {
                     file.debts = file.debts.filter(check);
                 }
             } else {
-                this.mainForm.debts = this.mainForm.debts.filter(check);
+                // this.mainForm.debts = this.mainForm.debts.filter(check);
+
+                this.mainForm.sequence = this.mainForm.sequence.filter(check);
 
             }
 
@@ -125,6 +177,8 @@ export const useInputStore = defineStore('inputStore', {
                     ...parsed,
                 }
             );
+
+            console.log(this.mainForm.imported)
         },
 
         async extractInformation(file) {
@@ -144,19 +198,35 @@ export const useInputStore = defineStore('inputStore', {
 
         addPayment(item) {
             if (item === undefined) {
-                this.mainForm.payments.push({
+                // this.mainForm.payments.push({
+                //     id: uuidv4(),
+                //     payment_date: new Date(),
+                //     amount: '',
+                //     pay_for: '',
+                // });
+
+                this.mainForm.sequence.push({
                     id: uuidv4(),
                     payment_date: new Date(),
                     amount: '',
                     pay_for: '',
                 });
             } else {
-                let index = this.mainForm.payments.indexOf(item);
+                let index = this.mainForm.sequence.indexOf(item);
+                // let index = this.mainForm.payments.indexOf(item);
                 if (index === -1) {
-                    index = this.mainForm.payments.length;
+                    // index = this.mainForm.payments.length;
+                    index = this.mainForm.sequence.length;
                 }
 
-                this.mainForm.payments.splice(index + 1, 0, {
+                // this.mainForm.payments.splice(index + 1, 0, {
+                //     id: uuidv4(),
+                //     payment_date: new Date(),
+                //     amount: '',
+                //     pay_for: '',
+                // });
+
+                this.mainForm.sequence.splice(index + 1, 0, {
                     id: uuidv4(),
                     payment_date: new Date(),
                     amount: '',
@@ -176,38 +246,34 @@ export const useInputStore = defineStore('inputStore', {
                     file.payments = file.payments.filter(check);
                 }
             } else {
-                this.mainForm.payments = this.mainForm.payments.filter(check);
+                this.mainForm.sequence = this.mainForm.sequence.filter(check);
+                //this.mainForm.payments = this.mainForm.payments.filter(check);
 
             }
         },
 
-        pasteDebtFromClipboard(content) {
-            let parsed = fromClipboardFormat(content);
-            parsed = parsed.debts;
-            if (parsed.length == 0) {
+        pasteFromClipboard(content) {
+            const {debts_value, payments_value} = content;
+
+            let debts = fromClipboardFormat(debts_value).debts;
+            let payments = fromClipboardFormat(payments_value).debts;
+
+            if (debts.length === 0 && payments.length === 0) {
                 throw new Error();
             }
-            for (let item of parsed) {
+            for (let item of debts) {
                 item.id = uuidv4();
             }
-            this.mainForm.debts.push(...parsed);
-        },
 
-        pastePaymentFromClipboard(content) {
-            let parsed = fromClipboardFormat(content);
-            parsed = parsed.debts;
-            if (parsed.length == 0) {
-                throw new Error();
-            }
-            for (let item of parsed) {
+            for (let item of payments) {
                 item.id = uuidv4();
                 item.pay_for = '';
                 item.payment_date = item.debt_start;
                 delete item.debt_start;
-
             }
-            this.mainForm.payments.push(...parsed);
-        },  
+            this.mainForm.sequence.push(...debts);
+            this.mainForm.sequence.push(...payments);
+        },
 
         isNumber(event, amount) {
             let value = event.key;
@@ -232,70 +298,45 @@ export const useInputStore = defineStore('inputStore', {
 
     },
     getters: {
-        allDebts() {
+        // allDebts() {
+        //     let initial = [];
+
+
+        //     for (let elem of this.mainForm.imported) {
+        //         initial.push(...elem.debts);
+        //     }
+        //     initial.push(...this.mainForm.debts);
+
+            
+        //     return initial;
+
+        // },
+
+        // allPayments() {
+        //     let initial = [];
+
+
+        //     for (let elem of this.mainForm.imported) {
+        //         initial.push(...elem.payments);
+        //     }
+        //     initial.push(...this.mainForm.payments);
+
+        //     return initial;
+        // },
+
+        allPaymentsAndDebts() {
             let initial = [];
 
 
             for (let elem of this.mainForm.imported) {
                 initial.push(...elem.debts);
             }
-            initial.push(...this.mainForm.debts);
-
-           /*  let bothCompleted = []
-            let oneIsEmpty = []
-            let twoAreEmpty = []
-            
-            for (let index in initial) {
-                let item = initial[index]
-                if (item.debt_start !== '' && item.amount !== '') {
-                    bothCompleted.push(item)
-                } else if (item.debt_start === '' && item.amount === '') {
-                    twoAreEmpty.push(item)
-                } else {
-                    oneIsEmpty.push(item)
-                }
-            }
-
-            bothCompleted = bothCompleted.sort(
-                (a, b) => new Date(a.debt_start) - new Date(b.debt_start)
-            ) */
-            
-            // return [...bothCompleted, ...oneIsEmpty, ...twoAreEmpty]
-            
-            return initial;
-
-        },
-
-        allPayments() {
-            let initial = [];
-
 
             for (let elem of this.mainForm.imported) {
                 initial.push(...elem.payments);
             }
-            initial.push(...this.mainForm.payments);
 
-            /* let bothCompleted = [];
-            let oneIsEmpty = [];
-            let twoAreEmpty = [];
-            
-            for (let index in initial) {
-                let item = initial[index];
-                if (item.payment_date !== '' && item.amount !== '') {
-                    bothCompleted.push(item);
-                } else if (item.payment_date === '' && item.amount === '') {
-                    twoAreEmpty.push(item);
-                } else {
-                    oneIsEmpty.push(item);
-                }
-            }
-
-            bothCompleted = bothCompleted.sort(
-                (a, b) => new Date(a.payment_date) - new Date(b.payment_date)
-            ); 
-            
-            return [...bothCompleted, ...oneIsEmpty, ...twoAreEmpty];*/
-            return initial;
+            return [...initial, ...this.mainForm.sequence]; 
         }
     },
 });

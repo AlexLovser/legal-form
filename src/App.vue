@@ -110,7 +110,7 @@ export default {
                 payment.date = payment.payment_date
                 payment.amount = Number(payment.amount)
                 payment.part = '1/1'
-                if (payment.pay_for !== '') {
+                if (payment.pay_for !== '' && payment.pay_for !== undefined) {
                     let {month, year} = payment.pay_for
                     month ++
                     if (month < 10) {

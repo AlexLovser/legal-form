@@ -7,14 +7,40 @@
             </h2>
         </div> -->
         <h2 style="margin-left: 1rem">
-            Расчёт пени по коммунальным платежам (155 ЖК РФ)
+            Расчёт пеней
         </h2>
         
 
         <div>
-           <div class="input-field">
+            <!-- <div class="input-field">
                 <div class="input-left">
-                    <strong>Задолженности [ {{store.allDebts.length}} ]</strong>
+                    <strong>Тип рассчета</strong>
+                </div>
+                <div class="input-right">
+                    <div class="radio-input-field">
+                        <input 
+                            value="0" 
+                            type="radio"
+                            name="resultView" 
+                            v-model="store.mainForm.resultView" 
+                            required
+                        > &nbsp;&nbsp;ч.14 ст.155 ЖК РФ
+                    </div>
+                    <div class="radio-input-field">
+                        <input 
+                            value="1" 
+                            type="radio" 
+                            name="resultView" 
+                            v-model="store.mainForm.resultView" 
+                            required
+                        > &nbsp;&nbsp;ч.14.1 ст.155 ЖК РФ
+                    </div>
+                </div>
+            </div> -->
+
+           <div class="input-field">
+                <!-- <div class="input-left">
+                    <strong>Задолженности и оплаты</strong>
                     <div class="alert plain warning">
                         <br />
                         Обычно ежемесячные платежи
@@ -33,13 +59,34 @@
                             color="primary"
                             title="Вставить задолженности из буфера"
                         />
+                        <br />
+                        <br />
+
+                        <iconedButton   
+                            @click="store.addDebt()" 
+                            icon_name="plus" 
+                            color="primary"
+                            title="Добавить долг"
+                        />
+                        <br />
+                        <br />
+
+                        <iconedButton   
+                            @click="store.addPayment()" 
+                            icon_name="plus" 
+                            color="primary"
+                            title="Добавить начисление"
+                        />
+
+
 
                         <br />
                     </div>
-                </div>
-                <debtsVue />
+                </div> -->
+                
+                <debts_n_payments @modal-switch-call="modalSwitch('open')"/>
            </div>
-
+<!-- 
            <div class="input-field">
                 <div class="input-left" >
                     <strong>Частичная оплата задолженности [ {{store.allPayments.length}} ]</strong>
@@ -59,7 +106,7 @@
                     </div>
                 </div>
                 <paymentsVue />
-            </div>
+            </div> -->
 
             <div class="input-field">
                 <fileInput />
@@ -80,7 +127,7 @@
 
                     <dateInputVue 
                         v-if="store.mainForm.rate === '4'"
-                        style="margin-top: 1rem; width: 150px;"
+                        style="margin-top: 1rem; width: 170px;"
                         format="dd.MM.yyyy"
                         :initialDate="now"
                         @date-input="newValue => store.mainForm.exactDate = newValue" 
@@ -91,12 +138,12 @@
             <div class="input-field">
                 <div class="input-left">
                     <strong>Конечная дата</strong>
-                    <div class="alert plain">
+                    <!-- <div class="alert plain">
                         <br />
                         Текущая дата (по умолчанию)
                         <br />
                         <br />
-                    </div>
+                    </div> -->
                 </div>
                 <div class="input-right">
                     <div style="width: 170px">
@@ -123,7 +170,7 @@
                 </div>
             </div>
 
-            <div class="input-field">
+            <!-- <div class="input-field">
                 <div class="input-left">
                     <strong>Вид отчёта</strong>
                 </div>
@@ -147,9 +194,9 @@
                         > &nbsp;&nbsp;Бухгалтерский
                     </div>
                 </div>
-            </div>
+            </div> -->
 
-            <div class="input-field">
+            <!-- <div class="input-field">
                 <div class="input-left">
                     <strong>Подпись при печати</strong>
                     <div class="alert plain">
@@ -165,7 +212,7 @@
                         Подпись сайта калькулятора расчёта при печати
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="final-buttons-field">
                 <iconedButton   
@@ -173,6 +220,7 @@
                     icon_name="bolt-alt" 
                     color="primary"
                     title="Рассчитать"
+                    style="{ margin-right: 1rem;}"
                 />
 
                 <iconedButton   
@@ -183,8 +231,7 @@
                 />
             </div>
 
-            <modalInput @saved="handlePasteDebt" for="debts" :show="showDebtModal"/>
-            <modalInput @saved="handlePastePayment" for="payments" :show="showPaymentModal"/>
+            <modalInput @saved="handlePaste" for="debts" :show="showModal"/>
         </div>
     </div>
 </template>
@@ -193,8 +240,8 @@
 import './mainInput.css';
 import fileInput from './fileInput/fileInput'
 import dateInputVue from './dateInput/dateInput.vue';
-import paymentsVue from './payments/payments.vue';
-import debtsVue from './debts/debts.vue';
+
+import debts_n_payments from './debts_paymens/debts_n_payments.vue';
 import modalInput from './modalInput/modalInput.vue';
 import iconedButton from './iconed_button/iconedButton.vue';
 
@@ -210,19 +257,18 @@ export default {
     components: {
         fileInput,
         dateInputVue,
-        paymentsVue,
-        debtsVue,
+        debts_n_payments,
         modalInput,
         iconedButton
     },
+    emits: ['submit', 'alert'],
 
     setup() {
         const store = useInputStore();
         return {
             store,
             now: DateTime.now().toJSDate(),
-            showDebtModal: ref(false),
-            showPaymentModal: ref(false),
+            showModal: ref(false),
         };
 
     },
@@ -246,48 +292,48 @@ export default {
 
         },
 
-        pasteMixin(f) {
+
+        modalSwitch(to) {
+            this.showModal = to === 'open'
+        },
+
+        handlePaste(data) {
             try {
-                f()
+                this.store.pasteFromClipboard(data)
                 this.$emit('alert', {
                     message: 'Данные были успешно добавлены!',
                     type: 'primary'
                 });
-            } catch (e) {
+            } 
+            catch (e) {
                 this.$emit('alert', {
                     message: 'Данные были некорректны!',
                     type: 'danger'
                 });
+            } 
+            finally {
+                this.modalSwitch('close')
             }
+            
         },
-
-        debtModalSwitch(to) {
-            this.showDebtModal = to === 'open'
-        },
-
-        paymentModalSwitch(to) {
-            this.showPaymentModal = to === 'open'
-        },
-
-        handlePasteDebt(text) {
-            this.pasteMixin(() => this.store.pasteDebtFromClipboard(text))
-            this.debtModalSwitch('close')
-        },
-
-        handlePastePayment(text) {
-            this.pasteMixin(() => this.store.pastePaymentFromClipboard(text))
-            this.paymentModalSwitch('close')
-        },
-        
         deepClone(value) {
             return JSON.parse(JSON.stringify(value))
         },
         
         submitForm() {
+            let data = [
+                ...this.store.mainForm.sequence
+            ]
+
+            if (this.store.mainForm.imported.length !== 0) {
+                data.push(...this.store.mainForm.imported[0].debts) 
+                data.push(...this.store.mainForm.imported[0].payments)
+            }
+            const { debts, payments } = this.store.separateToDebtsAndPayments(data)
             
             const myForm = this.deepClone(this.store.mainForm)
-            myForm.debts = this.deepClone(this.store.allDebts)
-            myForm.payments = this.deepClone(this.store.allPayments)
+            myForm.debts = this.deepClone(debts)
+            myForm.payments = this.deepClone(payments)
 
             let address = ''
             for (let file of myForm.imported) {
@@ -298,32 +344,61 @@ export default {
             }
             myForm.address = address
 
+            for (let index in this.store.allPaymentsAndDebts) {
+                let element = this.store.allPaymentsAndDebts[index]
 
-            for (let index in myForm.debts) {
-                let debt = myForm.debts[index]
-                if (debt.debt_start === '' || debt.amount === '') {
-                    index ++
-                    this.$emit('alert', {
-                        message: `Вы не заполнили до конца задолженность номер ${index}`,
-                        type: 'danger',
-                    })
-                    return
+                if (this.store.objectIsDebt(element)) {
+                    if (element.debt_start === '' || element.amount === '') {
+                        index ++
+                        this.$emit('alert', {
+                            message: `Вы не заполнили до конца задолженность номер ${index}`,
+                            type: 'danger',
+                        })
+                        return
+                        
+                    }
+                }
+                else {
+
+                    if (element.payment_date === '' || element.amount === '') {
+                        index ++
+                        this.$emit('alert', {
+                            message: `Вы не заполнили до конца оплату номер ${index}`,
+                            type: 'danger',
+                        })
+                        return
+                    }
                     
                 }
+                
             }
-            
-            for (let index in myForm.payments) {
-                let payment = myForm.payments[index]
-                if (payment.payment_date === '' || payment.amount === '') {
-                    index ++
-                    this.$emit('alert', {
-                        message: `Вы не заполнили до конца оплату номер ${index}`,
-                        type: 'danger',
-                    })
-                    return
-                }
 
-            }
+
+            // for (let index in myForm.debts) {
+            //     let debt = myForm.debts[index]
+            //     if (debt.debt_start === '' || debt.amount === '') {
+            //         index ++
+            //         this.$emit('alert', {
+            //             message: `Вы не заполнили до конца задолженность номер ${index}`,
+            //             type: 'danger',
+            //         })
+            //         return
+                    
+            //     }
+            // }
+            
+            // for (let index in myForm.payments) {
+            //     let payment = myForm.payments[index]
+            //     if (payment.payment_date === '' || payment.amount === '') {
+            //         index ++
+            //         this.$emit('alert', {
+            //             message: `Вы не заполнили до конца оплату номер ${index}`,
+            //             type: 'danger',
+            //         })
+            //         return
+            //     }
+
+            // }
 
             this.store.mainForm.edited = false
 
@@ -338,8 +413,11 @@ export default {
     computed: {
         isDisabled() {
             const form = this.store.mainForm
+            const {debts} = this.store.separateToDebtsAndPayments(this.store.mainForm.sequence)
+
+
             return !(
-                this.store.allDebts.length &&
+                debts.length &&
                 form.rate !== '' &&
                 (Number(form.rate) < 4  ? !(form.exactDate in [null, undefined, '']) : true) &&
                 form.endDate !== undefined &&

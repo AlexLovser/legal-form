@@ -1,5 +1,5 @@
 <template>
-    <div class="indexing plain mr">
+    <div class="indexing plain mr payment-color">
         {{index + 1}}
     </div>
     <div class="mr">
@@ -13,7 +13,7 @@
     <div class="mr">
         <input 
             :style="{'border-color': !handleAmount() ? '#e53935': '#ccc'}"
-            placeholder="сумма долга"
+            placeholder="сумма оплаты"
             v-model="item.amount"
             @keypress="isNumber"
             @keypress.enter="store.addPayment(item.id)"
@@ -30,9 +30,9 @@
 
     </div>
     
-    <div @click="store.addPayment(item)" class="icon">
+    <!-- <div @click="store.addPayment(item)" class="icon">
         <unicon name="enter" fill="#3eaf7c"></unicon>
-    </div>
+    </div> -->
     <div @click="store.deletePayment(item)" class="icon">
         <unicon name="trash-alt" fill="#e53935" height="30" width="30"></unicon>
     </div>
@@ -59,7 +59,11 @@ export default {
     props: ['index', 'id'],
     setup(props) {
         const store = useInputStore();
-        const item = store.allPayments.find(el => el.id === props.id)
+        let item = store.mainForm.sequence.find(el => el.id === props.id)
+
+        if (item === undefined) {
+            item = store.mainForm.imported[0].payments.find(el => el.id === props.id)
+        } 
 
         return {
             item,

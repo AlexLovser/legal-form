@@ -1,5 +1,5 @@
 <template>
-    <div class="indexing plain mr">
+    <div class="indexing plain mr debt-color">
         {{index + 1}}
     </div>
     <div class="mr">
@@ -22,9 +22,10 @@
 
     </div>
     
-    <div @click="store.addDebt(item)" class="icon">
+    <!-- <div @click="store.addDebt(item)" class="icon">
         <unicon name="enter" fill="#3eaf7c"></unicon>
-    </div>
+    </div> -->
+    <div style="{display: flex; width: 172px;}"></div>
     <div @click="store.deleteDebt(item)" class="icon">
         <unicon name="trash-alt" fill="#e53935" height="30" width="30"></unicon>
     </div>
@@ -50,7 +51,11 @@ export default {
     props: ['index', 'id'],
     setup(props) {
         const store = useInputStore();
-        const item = store.allDebts.find(el => el.id === props.id)
+        let item = store.mainForm.sequence.find(el => el.id === props.id)
+
+        if (item === undefined) {
+            item = store.mainForm.imported[0].debts.find(el => el.id === props.id)
+        } 
 
         return {
             item,

@@ -1,12 +1,12 @@
 .iconed-button {
     display: flex;
     flex-direction: row;
-    width: min-content;
-    height: min-content;
+    width: max-content;
+    height: max-content;
     max-width: 300px;
     /* overflow:-moz-hidden-unscrollable; */
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     border-radius: 1rem;
     letter-spacing: 0.05em;
     text-decoration: none;

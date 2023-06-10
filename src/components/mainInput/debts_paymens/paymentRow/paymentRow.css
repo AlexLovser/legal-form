@@ -8,6 +8,11 @@
     width: 33.6px;
     align-items: center;
     justify-content: center;
+    
+}
+
+.payment-color {
+    background-color: rgba(0, 255, 50, 0.1);
 }
 
 .icon:hover {

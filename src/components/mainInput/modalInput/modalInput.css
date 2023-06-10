@@ -19,7 +19,7 @@
     position: fixed;
     align-items: center;
     justify-content: center;
-    width: 50%;
+    width: 70%;
     padding: 2rem;
     background: #f8f8f8;
     z-index: 999;
@@ -29,19 +29,21 @@
 .modal-description {
     margin-right: 1rem;
     display: flex;
-    width: 50%;
+    width: 30%;
 }
 
 .modal-input {
-    width: 50%;
-    height: auto;
+    width: 300px;
+    height: 80%;
     align-items: flex-start;
     justify-content: flex-start;
 }
 
+
 .modal-input-img {
     width: 100%;
-    max-width: 200px;
+    height: auto;
+    max-width: 300px;
     height: auto;
     margin: 0
 

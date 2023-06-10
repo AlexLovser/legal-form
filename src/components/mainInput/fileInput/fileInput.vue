@@ -1,16 +1,14 @@
 <template>
     
-    <div class="input-left">
-        <strong>Файлы [ {{store.mainForm.imported.length}} / 10 ]</strong>
-
-        <div class="alert plain">
+    <!-- <div class="input-left"> -->
+        <!-- <div class="alert plain">
             <br />
             Данные из файлов автоматически добавляются в форму. Удаляя файл вы удаляете его данные из формы
             <br />
             <br />
-        </div>
+        </div> -->
         
-        <div class="alert plain">
+        <!-- <div class="alert plain">
             <br />
 
             <div class="row">
@@ -45,11 +43,39 @@
                 <span>Значок обозначает, что данная запись была добавлена из файла</span>
             </span> 
             <br>
-        </div>
-    </div>
+        </div> -->
+    <!-- </div> -->
 
     <div class="input-right" style="justify-content: flex-top">
-        <ul 
+        <div class="row">
+            <strong class="mr-1 row" v-if="store.mainForm.imported.length !== 0">
+                <unicon 
+                        name="file-check" 
+                        fill="#42b983" 
+                        height="30" 
+                        width="30" 
+                        style="margin-right: 1rem">
+                    </unicon> {{store.mainForm.imported[0].name}}
+            </strong>  
+            <iconedButton   
+                v-if="store.mainForm.imported.length !== 1"
+                @click="handlePress" 
+                icon_name="plus" 
+                color="primary"
+                title="Добавить файл"
+                
+            />
+            <input 
+                    type="file" 
+                    @input="handleFileChange" 
+                    style="display: none" 
+                    ref="fileInput"
+                    accept=".xls"
+                />
+        </div>
+        
+        
+        <!-- <ul 
             class="row" 
             style="list-style-type: none" 
             v-if="!noFilesLoaded"
@@ -77,13 +103,13 @@
                 </button>
 
             </li>
-        </ul>
+        </ul> -->
 
-        <span v-else class="plain file-container"  style="justify-content: center">
+        <!-- <span v-else class="plain file-container"  style="justify-content: center">
             <unicon name="file-slash" fill="#8c8989" height="50" width="50" style="margin-bottom: 1rem">
             </unicon>
             Вы еще не добавили ни одного файла...
-        </span>
+        </span> -->
     </div>
    
 </template>

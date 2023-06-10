@@ -90,13 +90,22 @@ textarea {
     scrollbar-width: thin;
 }
 
+.full_width {
+    display: flex;
+    width: 100%
+}
+
 .final-buttons-field {
     display: flex;
     width: 100%;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
     margin-top: 2rem;
+}
+
+.mr-1 {
+    margin-right: 1rem;
 }
 
 
